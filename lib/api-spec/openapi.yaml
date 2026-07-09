@@ -3,20 +3,34 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: BIRU MENARA API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: admin
+    description: Admin authentication
+  - name: announcements
+    description: Announcements management
+  - name: news
+    description: News management
+  - name: schedules
+    description: Schedule management
+  - name: teamMembers
+    description: Team members management
+  - name: downloads
+    description: Downloads management
+  - name: settings
+    description: Site settings
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +38,553 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCredentials"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Invalid credentials
+
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: Admin logout
+      responses:
+        "204":
+          description: Logged out
+
+  /admin/me:
+    get:
+      operationId: adminMe
+      tags: [admin]
+      summary: Get current admin session
+      responses:
+        "200":
+          description: Current admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          description: Not authenticated
+
+  # ---- Announcements ----
+  /announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [announcements]
+      summary: List all announcements
+      responses:
+        "200":
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [announcements]
+      summary: Create announcement (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  /announcements/{id}:
+    get:
+      operationId: getAnnouncement
+      tags: [announcements]
+      summary: Get announcement by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Announcement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        "404":
+          description: Not found
+    put:
+      operationId: updateAnnouncement
+      tags: [announcements]
+      summary: Update announcement (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteAnnouncement
+      tags: [announcements]
+      summary: Delete announcement (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ---- News ----
+  /news:
+    get:
+      operationId: listNews
+      tags: [news]
+      summary: List all news
+      responses:
+        "200":
+          description: List of news
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsPost"
+    post:
+      operationId: createNewsPost
+      tags: [news]
+      summary: Create news post (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsPostInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+
+  /news/{id}:
+    get:
+      operationId: getNewsPost
+      tags: [news]
+      summary: Get news post by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: News post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+        "404":
+          description: Not found
+    put:
+      operationId: updateNewsPost
+      tags: [news]
+      summary: Update news post (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsPostUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsPost"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteNewsPost
+      tags: [news]
+      summary: Delete news post (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ---- Schedules ----
+  /schedules:
+    get:
+      operationId: listSchedules
+      tags: [schedules]
+      summary: List all schedule items
+      responses:
+        "200":
+          description: List of schedules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleMatch"
+    post:
+      operationId: createSchedule
+      tags: [schedules]
+      summary: Create schedule item (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleMatchInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleMatch"
+
+  /schedules/{id}:
+    get:
+      operationId: getSchedule
+      tags: [schedules]
+      summary: Get schedule item by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Schedule item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleMatch"
+        "404":
+          description: Not found
+    put:
+      operationId: updateSchedule
+      tags: [schedules]
+      summary: Update schedule item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleMatchUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleMatch"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteSchedule
+      tags: [schedules]
+      summary: Delete schedule item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ---- Team Members ----
+  /team-members:
+    get:
+      operationId: listTeamMembers
+      tags: [teamMembers]
+      summary: List all team members
+      responses:
+        "200":
+          description: List of team members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TeamMember"
+    post:
+      operationId: createTeamMember
+      tags: [teamMembers]
+      summary: Create team member (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+
+  /team-members/{id}:
+    get:
+      operationId: getTeamMember
+      tags: [teamMembers]
+      summary: Get team member by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Team member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+        "404":
+          description: Not found
+    put:
+      operationId: updateTeamMember
+      tags: [teamMembers]
+      summary: Update team member (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeamMemberUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMember"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteTeamMember
+      tags: [teamMembers]
+      summary: Delete team member (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ---- Downloads ----
+  /downloads:
+    get:
+      operationId: listDownloads
+      tags: [downloads]
+      summary: List all downloads
+      responses:
+        "200":
+          description: List of downloads
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DownloadFile"
+    post:
+      operationId: createDownload
+      tags: [downloads]
+      summary: Create download item (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DownloadFileInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadFile"
+
+  /downloads/{id}:
+    get:
+      operationId: getDownload
+      tags: [downloads]
+      summary: Get download item by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Download item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadFile"
+        "404":
+          description: Not found
+    put:
+      operationId: updateDownload
+      tags: [downloads]
+      summary: Update download item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DownloadFileUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadFile"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteDownload
+      tags: [downloads]
+      summary: Delete download item (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # ---- Settings ----
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get site settings
+      responses:
+        "200":
+          description: Site settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    put:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update site settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +592,327 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    AdminUser:
+      type: object
+      properties:
+        isAdmin:
+          type: boolean
+      required: [isAdmin]
+
+    AdminCredentials:
+      type: object
+      properties:
+        password:
+          type: string
+      required: [password]
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        urgent:
+          type: boolean
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, title, content, date, urgent, published, createdAt]
+
+    AnnouncementInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        urgent:
+          type: boolean
+        published:
+          type: boolean
+      required: [title, content, date]
+
+    AnnouncementUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        urgent:
+          type: boolean
+        published:
+          type: boolean
+
+    NewsPost:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, title, excerpt, content, date, category, published, createdAt]
+
+    NewsPostInput:
+      type: object
+      properties:
+        title:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+      required: [title, excerpt, content, date, category]
+
+    NewsPostUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        date:
+          type: string
+        category:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        published:
+          type: boolean
+
+    ScheduleMatch:
+      type: object
+      properties:
+        id:
+          type: integer
+        sport:
+          type: string
+        gender:
+          type: string
+        level:
+          type: string
+        venue:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+        status:
+          type: string
+        result:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+      required: [id, sport, gender, level, venue, date, time, status, sortOrder]
+
+    ScheduleMatchInput:
+      type: object
+      properties:
+        sport:
+          type: string
+        gender:
+          type: string
+        level:
+          type: string
+        venue:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+        status:
+          type: string
+        result:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+      required: [sport, gender, level, venue, date, time, status]
+
+    ScheduleMatchUpdate:
+      type: object
+      properties:
+        sport:
+          type: string
+        gender:
+          type: string
+        level:
+          type: string
+        venue:
+          type: string
+        date:
+          type: string
+        time:
+          type: string
+        status:
+          type: string
+        result:
+          type: ["string", "null"]
+        sortOrder:
+          type: integer
+
+    TeamMember:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+        name:
+          type: string
+        memberType:
+          type: string
+        sortOrder:
+          type: integer
+        imageUrl:
+          type: ["string", "null"]
+      required: [id, role, name, memberType, sortOrder]
+
+    TeamMemberInput:
+      type: object
+      properties:
+        role:
+          type: string
+        name:
+          type: string
+        memberType:
+          type: string
+        sortOrder:
+          type: integer
+        imageUrl:
+          type: ["string", "null"]
+      required: [role, name, memberType]
+
+    TeamMemberUpdate:
+      type: object
+      properties:
+        role:
+          type: string
+        name:
+          type: string
+        memberType:
+          type: string
+        sortOrder:
+          type: integer
+        imageUrl:
+          type: ["string", "null"]
+
+    DownloadFile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        size:
+          type: string
+        fileUrl:
+          type: string
+        sortOrder:
+          type: integer
+      required: [id, name, category, size, fileUrl, sortOrder]
+
+    DownloadFileInput:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        size:
+          type: string
+        fileUrl:
+          type: string
+        sortOrder:
+          type: integer
+      required: [name, category, size, fileUrl]
+
+    DownloadFileUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        size:
+          type: string
+        fileUrl:
+          type: string
+        sortOrder:
+          type: integer
+
+    SiteSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+        instagram:
+          type: string
+        facebook:
+          type: string
+        address:
+          type: string
+        phone:
+          type: ["string", "null"]
+        heroTitle:
+          type: string
+        heroSlogan:
+          type: string
+        heroSubSlogan:
+          type: string
+      required: [id, instagram, facebook, address, heroTitle, heroSlogan, heroSubSlogan]
+
+    SiteSettingsUpdate:
+      type: object
+      properties:
+        instagram:
+          type: string
+        facebook:
+          type: string
+        address:
+          type: string
+        phone:
+          type: ["string", "null"]
+        heroTitle:
+          type: string
+        heroSlogan:
+          type: string
+        heroSubSlogan:
+          type: string

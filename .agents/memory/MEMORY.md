@@ -1,0 +1,1 @@
+- [BIRU MENARA admin system](biru-menara-admin.md) — session auth, CSRF, DB schema, mapRow pattern for Date→string conversion

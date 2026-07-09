@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface DownloadFileUpdate {
+  name?: string;
+  category?: string;
+  size?: string;
+  fileUrl?: string;
+  sortOrder?: number;
 }

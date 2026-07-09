@@ -10,6 +10,16 @@ import Downloads from '@/pages/Downloads';
 import Team from '@/pages/Team';
 import Contact from '@/pages/Contact';
 
+// Admin Pages
+import AdminLogin from '@/pages/admin/Login';
+import AdminDashboard from '@/pages/admin/Dashboard';
+import AdminAnnouncements from '@/pages/admin/AdminAnnouncements';
+import AdminNews from '@/pages/admin/AdminNews';
+import AdminSchedules from '@/pages/admin/AdminSchedules';
+import AdminTeam from '@/pages/admin/AdminTeam';
+import AdminDownloads from '@/pages/admin/AdminDownloads';
+import AdminSettings from '@/pages/admin/AdminSettings';
+
 const queryClient = new QueryClient();
 
 function NotFound() {
@@ -36,6 +46,17 @@ function Router() {
       <Route path="/downloads" component={Downloads} />
       <Route path="/team" component={Team} />
       <Route path="/contact" component={Contact} />
+      
+      {/* Admin Routes */}
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/announcements" component={AdminAnnouncements} />
+      <Route path="/admin/news" component={AdminNews} />
+      <Route path="/admin/schedules" component={AdminSchedules} />
+      <Route path="/admin/team" component={AdminTeam} />
+      <Route path="/admin/downloads" component={AdminDownloads} />
+      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin" component={AdminDashboard} />
+      
       <Route component={NotFound} />
     </Switch>
   );

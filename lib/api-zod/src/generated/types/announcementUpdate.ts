@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface AnnouncementUpdate {
+  title?: string;
+  content?: string;
+  date?: string;
+  urgent?: boolean;
+  published?: boolean;
 }
