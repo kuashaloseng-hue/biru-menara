@@ -181,6 +181,10 @@ export interface SiteSettings {
   heroTitle: string;
   heroSlogan: string;
   heroSubSlogan: string;
+  /** @nullable */
+  heroImageUrl?: string | null;
+  /** @nullable */
+  logoUrl?: string | null;
 }
 
 export interface SiteSettingsUpdate {
@@ -192,5 +196,9 @@ export interface SiteSettingsUpdate {
   heroTitle?: string;
   heroSlogan?: string;
   heroSubSlogan?: string;
+  /** @nullable */
+  heroImageUrl?: string | null;
+  /** @nullable */
+  logoUrl?: string | null;
 }
 

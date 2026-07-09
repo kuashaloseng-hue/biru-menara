@@ -897,6 +897,10 @@ components:
           type: string
         heroSubSlogan:
           type: string
+        heroImageUrl:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]
       required: [id, instagram, facebook, address, heroTitle, heroSlogan, heroSubSlogan]
 
     SiteSettingsUpdate:
@@ -916,3 +920,7 @@ components:
           type: string
         heroSubSlogan:
           type: string
+        heroImageUrl:
+          type: ["string", "null"]
+        logoUrl:
+          type: ["string", "null"]

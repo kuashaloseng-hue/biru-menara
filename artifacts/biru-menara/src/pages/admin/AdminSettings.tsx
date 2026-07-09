@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Instagram, Facebook, MapPin, Phone, Save } from "lucide-react";
+import { Instagram, Facebook, MapPin, Phone, Save, Image, Type } from "lucide-react";
 
 export default function AdminSettings() {
   const queryClient = useQueryClient();
@@ -26,7 +26,9 @@ export default function AdminSettings() {
     phone: "",
     heroTitle: "",
     heroSlogan: "",
-    heroSubSlogan: ""
+    heroSubSlogan: "",
+    heroImageUrl: "",
+    logoUrl: "",
   });
 
   useEffect(() => {
@@ -38,13 +40,21 @@ export default function AdminSettings() {
         phone: settings.phone || "",
         heroTitle: settings.heroTitle || "",
         heroSlogan: settings.heroSlogan || "",
-        heroSubSlogan: settings.heroSubSlogan || ""
+        heroSubSlogan: settings.heroSubSlogan || "",
+        heroImageUrl: settings.heroImageUrl || "",
+        logoUrl: settings.logoUrl || "",
       });
     }
   }, [settings]);
 
   const handleSave = () => {
-    updateSettings.mutate({ data: formData }, {
+    const payload = {
+      ...formData,
+      heroImageUrl: formData.heroImageUrl || null,
+      logoUrl: formData.logoUrl || null,
+      phone: formData.phone || null,
+    };
+    updateSettings.mutate({ data: payload }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
         toast.success("บันทึกการตั้งค่าสำเร็จ");
@@ -68,7 +78,7 @@ export default function AdminSettings() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">ตั้งค่าเว็บไซต์</h1>
-          <p className="text-muted-foreground">แก้ไขข้อความหลักและช่องทางการติดต่อของเว็บไซต์</p>
+          <p className="text-muted-foreground">แก้ไขรูปภาพ ข้อความหลัก และช่องทางการติดต่อ</p>
         </div>
         <Button onClick={handleSave} disabled={updateSettings.isPending} className="gap-2 px-6">
           <Save className="w-4 h-4" /> บันทึกการเปลี่ยนแปลง
@@ -76,6 +86,66 @@ export default function AdminSettings() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
+        {/* Image Settings */}
+        <Card className="glass border-white/5">
+          <CardHeader>
+            <CardTitle className="text-xl text-primary flex items-center gap-2">
+              <Image className="w-5 h-5" /> รูปภาพเว็บไซต์
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="heroImageUrl" className="flex items-center gap-2">
+                <Image className="w-4 h-4 text-blue-400" /> URL ภาพพื้นหลัง (Hero)
+              </Label>
+              <Input
+                id="heroImageUrl"
+                value={formData.heroImageUrl}
+                onChange={(e) => setFormData({...formData, heroImageUrl: e.target.value})}
+                className="bg-black/30 border-white/10"
+                placeholder="https://... (วางลิงก์รูปภาพ)"
+              />
+              {formData.heroImageUrl && (
+                <div className="mt-2 rounded-lg overflow-hidden border border-white/10 h-32">
+                  <img
+                    src={formData.heroImageUrl}
+                    alt="Hero preview"
+                    className="w-full h-full object-cover opacity-70"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">ใส่ URL รูปภาพ หรือวางลิงก์จาก Google Drive / Imgur ฯลฯ</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="logoUrl" className="flex items-center gap-2">
+                <Type className="w-4 h-4 text-cyan-400" /> URL โลโก้ (ไม่บังคับ)
+              </Label>
+              <Input
+                id="logoUrl"
+                value={formData.logoUrl}
+                onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
+                className="bg-black/30 border-white/10"
+                placeholder="https://... (วางลิงก์รูปโลโก้)"
+              />
+              {formData.logoUrl && (
+                <div className="mt-2 p-3 rounded-lg bg-black/40 border border-white/10 flex items-center gap-3">
+                  <img
+                    src={formData.logoUrl}
+                    alt="Logo preview"
+                    className="h-10 w-auto object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <span className="text-xs text-muted-foreground">ตัวอย่างโลโก้</span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">ถ้าว่างเปล่าจะใช้ไอคอน ⚡ BIRU MENARA ตามเดิม</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Hero Text */}
         <Card className="glass border-white/5">
           <CardHeader>
             <CardTitle className="text-xl text-primary">ข้อความหน้าแรก (Hero Section)</CardTitle>
@@ -113,11 +183,12 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
 
-        <Card className="glass border-white/5">
+        {/* Contact */}
+        <Card className="glass border-white/5 lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl text-primary">ช่องทางการติดต่อ</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="instagram" className="flex items-center gap-2">
                 <Instagram className="w-4 h-4 text-pink-500" /> ลิงก์ Instagram
@@ -159,7 +230,7 @@ export default function AdminSettings() {
               </Label>
               <Textarea 
                 id="address" 
-                rows={3}
+                rows={2}
                 value={formData.address} 
                 onChange={(e) => setFormData({...formData, address: e.target.value})} 
                 className="bg-black/30 border-white/10 resize-none"

@@ -15,4 +15,8 @@ export interface SiteSettingsUpdate {
   heroTitle?: string;
   heroSlogan?: string;
   heroSubSlogan?: string;
+  /** @nullable */
+  heroImageUrl?: string | null;
+  /** @nullable */
+  logoUrl?: string | null;
 }

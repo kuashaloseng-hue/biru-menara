@@ -11,6 +11,8 @@ export const settingsTable = pgTable("site_settings", {
   heroTitle: text("hero_title").notNull().default("BIRU MENARA"),
   heroSlogan: text("hero_slogan").notNull().default("กีฬาสร้างคน สายน้ำสร้างวิถีชีวิต บรรพบุรุษสร้างแนวคิด สีฟ้าพิชิต เชิดชูเมืองนรา"),
   heroSubSlogan: text("hero_sub_slogan").notNull().default("หนึ่งใจ หนึ่งพลัง สายน้ำเดียวกัน เพื่อศักดิ์ศรีฟ้าแห่งนรา"),
+  heroImageUrl: text("hero_image_url"),
+  logoUrl: text("logo_url"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 

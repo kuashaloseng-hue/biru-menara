@@ -532,7 +532,9 @@ export const GetSettingsResponse = zod.object({
   "phone": zod.string().nullish(),
   "heroTitle": zod.string(),
   "heroSlogan": zod.string(),
-  "heroSubSlogan": zod.string()
+  "heroSubSlogan": zod.string(),
+  "heroImageUrl": zod.string().nullish(),
+  "logoUrl": zod.string().nullish()
 })
 
 
@@ -546,7 +548,9 @@ export const UpdateSettingsBody = zod.object({
   "phone": zod.string().nullish(),
   "heroTitle": zod.string().optional(),
   "heroSlogan": zod.string().optional(),
-  "heroSubSlogan": zod.string().optional()
+  "heroSubSlogan": zod.string().optional(),
+  "heroImageUrl": zod.string().nullish(),
+  "logoUrl": zod.string().nullish()
 })
 
 export const UpdateSettingsResponse = zod.object({
@@ -557,7 +561,9 @@ export const UpdateSettingsResponse = zod.object({
   "phone": zod.string().nullish(),
   "heroTitle": zod.string(),
   "heroSlogan": zod.string(),
-  "heroSubSlogan": zod.string()
+  "heroSubSlogan": zod.string(),
+  "heroImageUrl": zod.string().nullish(),
+  "logoUrl": zod.string().nullish()
 })
 
 

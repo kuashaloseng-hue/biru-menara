@@ -7,39 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Newspaper, CalendarDays, Download, Users, ChevronRight, Bell, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
+import { useListAnnouncements, getListAnnouncementsQueryKey, useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 
-// Images
+// Fallback images
 import heroImg from "@assets/1783520581768_1783520763412.jpg";
 import cheerleadersImg from "@assets/generated_images/cheerleaders.jpg";
 import athletesImg from "@assets/generated_images/athletes.jpg";
 import celebrationImg from "@assets/generated_images/celebration.jpg";
 import teamSloganImg from "@assets/1783520586106_1783520776744.jpg";
 import { cn } from "@/lib/utils";
-
-const announcements = [
-  {
-    title: "แจ้งวันซ้อมกองเชียร์",
-    content: "ซ้อมกองเชียร์ทุกวันจันทร์-พุธ เวลา 15:00-17:00 น. ณ สนามกีฬาโรงเรียน",
-    date: "10 ม.ค. 2026",
-  },
-  {
-    title: "เปลี่ยนเวลาการแข่งขันฟุตบอล",
-    content: "การแข่งขันฟุตบอลรุ่น ม.4-ม.6 เลื่อนเป็นเวลา 14:00 น.",
-    date: "12 ม.ค. 2026",
-    urgent: true,
-  },
-  {
-    title: "ประกาศรายชื่อนักกีฬา",
-    content: "ตรวจสอบรายชื่อนักกีฬาได้ที่หน้าดาวน์โหลด",
-    date: "14 ม.ค. 2026",
-  },
-  {
-    title: "ข่าวด่วน: เปลี่ยนสนามแข่งขันบาสเกตบอล",
-    content: "ย้ายสนามแข่งเป็นอาคารอเนกประสงค์",
-    date: "15 ม.ค. 2026",
-    urgent: true,
-  },
-];
 
 const galleryImages = [
   { src: heroImg, caption: "เปิดตัว BIRU MENARA" },
@@ -49,7 +25,7 @@ const galleryImages = [
   { src: celebrationImg, caption: "ฉลองชัยชนะ" },
 ];
 
-const latestNews = [
+const latestNewsFallback = [
   {
     id: 1,
     title: "พิธีเปิดกีฬาสีประจำปี 2026",
@@ -79,6 +55,13 @@ const latestNews = [
 export default function Home() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
+  // Live data from API
+  const { data: announcements } = useListAnnouncements({ query: { queryKey: getListAnnouncementsQueryKey() } });
+  const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
+
+  const displayedAnnouncements = announcements?.filter((a) => a.published).slice(0, 4) ?? [];
+  const heroBg = settings?.heroImageUrl || heroImg;
+
   useEffect(() => {
     if (!emblaApi) return;
     const autoplay = setInterval(() => {
@@ -93,7 +76,7 @@ export default function Home() {
       <section className="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src={heroImg}
+            src={heroBg}
             alt="BIRU MENARA Banner"
             className="w-full h-full object-cover opacity-40 scale-105 motion-safe:animate-[pulse_10s_ease-in-out_infinite]"
           />
@@ -112,13 +95,19 @@ export default function Home() {
               ✨ อัตตัรกียะห์อิสลามียะห์ สปอร์ตเดย์ 2026
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter drop-shadow-2xl">
-              BIRU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent glow-text">MENARA</span>
+              {settings?.heroTitle ? (
+                <span>{settings.heroTitle}</span>
+              ) : (
+                <>BIRU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent glow-text">MENARA</span></>
+              )}
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 font-medium max-w-2xl leading-relaxed">
-              กีฬาสร้างคน สายน้ำสร้างวิถีชีวิต บรรพบุรุษสร้างแนวคิด <span className="text-white font-bold">สีฟ้าพิชิต เชิดชูเมืองนรา</span>
+              {settings?.heroSlogan || (
+                <>กีฬาสร้างคน สายน้ำสร้างวิถีชีวิต บรรพบุรุษสร้างแนวคิด <span className="text-white font-bold">สีฟ้าพิชิต เชิดชูเมืองนรา</span></>
+              )}
             </p>
             <p className="text-lg text-primary/80 max-w-xl">
-              "หนึ่งใจ หนึ่งพลัง สายน้ำเดียวกัน เพื่อศักดิ์ศรีฟ้าแห่งนรา"
+              "{settings?.heroSubSlogan || "หนึ่งใจ หนึ่งพลัง สายน้ำเดียวกัน เพื่อศักดิ์ศรีฟ้าแห่งนรา"}"
             </p>
             <div className="pt-4 flex flex-wrap gap-4 justify-center md:justify-start">
               <Link href="/schedule">
@@ -166,16 +155,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Announcements */}
+      {/* Announcements — live from API */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3 mb-8">
           <Bell className="h-8 w-8 text-primary" />
           <h2 className="text-3xl font-bold text-white">ประกาศสำคัญ</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
-          {announcements.map((ann, i) => (
+          {displayedAnnouncements.map((ann, i) => (
             <motion.div
-              key={i}
+              key={ann.id}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -239,7 +228,7 @@ export default function Home() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {latestNews.map((news, i) => (
+          {latestNewsFallback.map((news, i) => (
             <motion.div
               key={news.id}
               initial={{ opacity: 0, y: 20 }}

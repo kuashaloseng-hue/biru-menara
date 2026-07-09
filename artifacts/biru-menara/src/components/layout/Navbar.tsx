@@ -2,10 +2,12 @@ import { Link, useLocation } from "wouter";
 import { Menu, X, Zap } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [location] = useLocation();
+  const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
 
   const links = [
     { href: "/", label: "หน้าแรก" },
@@ -24,10 +26,20 @@ export function Navbar() {
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
-              <Zap className="h-8 w-8 text-primary group-hover:text-accent transition-colors drop-shadow-[0_0_10px_rgba(0,150,255,0.8)]" />
-              <span className="font-bold text-xl tracking-wider text-white group-hover:glow-text transition-all">
-                BIRU MENARA
-              </span>
+              {settings?.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt="Logo"
+                  className="h-10 w-auto object-contain"
+                />
+              ) : (
+                <>
+                  <Zap className="h-8 w-8 text-primary group-hover:text-accent transition-colors drop-shadow-[0_0_10px_rgba(0,150,255,0.8)]" />
+                  <span className="font-bold text-xl tracking-wider text-white group-hover:glow-text transition-all">
+                    BIRU MENARA
+                  </span>
+                </>
+              )}
             </Link>
           </div>
           <div className="hidden md:block">
