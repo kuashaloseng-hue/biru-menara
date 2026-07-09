@@ -187,6 +187,29 @@ export interface SiteSettings {
   logoUrl?: string | null;
 }
 
+export interface GalleryImage {
+  id: number;
+  imageUrl: string;
+  caption: string;
+  sortOrder: number;
+  published: boolean;
+  createdAt?: string;
+}
+
+export interface GalleryImageCreate {
+  imageUrl: string;
+  caption?: string;
+  sortOrder?: number;
+  published?: boolean;
+}
+
+export interface GalleryImageUpdate {
+  imageUrl?: string;
+  caption?: string;
+  sortOrder?: number;
+  published?: boolean;
+}
+
 export interface SiteSettingsUpdate {
   instagram?: string;
   facebook?: string;

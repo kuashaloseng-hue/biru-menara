@@ -7,6 +7,7 @@ import schedulesRouter from "./schedules";
 import teamMembersRouter from "./teamMembers";
 import downloadsRouter from "./downloads";
 import settingsRouter from "./settings";
+import galleryRouter from "./gallery";
 import { csrfCheck } from "../middlewares/csrfCheck";
 
 const router: IRouter = Router();
@@ -27,5 +28,6 @@ router.use(schedulesRouter);
 router.use(teamMembersRouter);
 router.use(downloadsRouter);
 router.use(settingsRouter);
+router.use(galleryRouter);
 
 export default router;

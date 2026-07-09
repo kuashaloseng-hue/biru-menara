@@ -19,6 +19,7 @@ import AdminSchedules from '@/pages/admin/AdminSchedules';
 import AdminTeam from '@/pages/admin/AdminTeam';
 import AdminDownloads from '@/pages/admin/AdminDownloads';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminGallery from '@/pages/admin/AdminGallery';
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ function Router() {
       <Route path="/admin/schedules" component={AdminSchedules} />
       <Route path="/admin/team" component={AdminTeam} />
       <Route path="/admin/downloads" component={AdminDownloads} />
+      <Route path="/admin/gallery" component={AdminGallery} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin" component={AdminDashboard} />
       

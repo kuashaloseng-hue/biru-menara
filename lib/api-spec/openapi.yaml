@@ -554,6 +554,100 @@ paths:
         "404":
           description: Not found
 
+  # ---- Gallery ----
+  /gallery:
+    get:
+      operationId: listGallery
+      tags: [gallery]
+      summary: List gallery images
+      responses:
+        "200":
+          description: Gallery images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GalleryImage"
+    post:
+      operationId: createGalleryImage
+      tags: [gallery]
+      summary: Add gallery image (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GalleryImageCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryImage"
+
+  /gallery/{id}:
+    get:
+      operationId: getGalleryImage
+      tags: [gallery]
+      summary: Get gallery image
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Gallery image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryImage"
+        "404":
+          description: Not found
+    put:
+      operationId: updateGalleryImage
+      tags: [gallery]
+      summary: Update gallery image (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GalleryImageUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GalleryImage"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteGalleryImage
+      tags: [gallery]
+      summary: Delete gallery image (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
   # ---- Settings ----
   /settings:
     get:
@@ -902,6 +996,48 @@ components:
         logoUrl:
           type: ["string", "null"]
       required: [id, instagram, facebook, address, heroTitle, heroSlogan, heroSubSlogan]
+
+    GalleryImage:
+      type: object
+      properties:
+        id:
+          type: integer
+        imageUrl:
+          type: string
+        caption:
+          type: string
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, imageUrl, caption, sortOrder, published]
+
+    GalleryImageCreate:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+        caption:
+          type: string
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
+      required: [imageUrl]
+
+    GalleryImageUpdate:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+        caption:
+          type: string
+        sortOrder:
+          type: integer
+        published:
+          type: boolean
 
     SiteSettingsUpdate:
       type: object

@@ -28,6 +28,9 @@ import type {
   DownloadFile,
   DownloadFileInput,
   DownloadFileUpdate,
+  GalleryImage,
+  GalleryImageCreate,
+  GalleryImageUpdate,
   HealthStatus,
   NewsPost,
   NewsPostInput,
@@ -2203,6 +2206,374 @@ export const useDeleteDownload = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getDeleteDownloadMutationOptions(options));
+    }
+
+export const getListGalleryUrl = () => {
+
+
+
+
+  return `/api/gallery`
+}
+
+/**
+ * @summary List gallery images
+ */
+export const listGallery = async ( options?: RequestInit): Promise<GalleryImage[]> => {
+
+  return customFetch<GalleryImage[]>(getListGalleryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListGalleryQueryKey = () => {
+    return [
+    `/api/gallery`
+    ] as const;
+    }
+
+
+export const getListGalleryQueryOptions = <TData = Awaited<ReturnType<typeof listGallery>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGallery>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListGalleryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listGallery>>> = ({ signal }) => listGallery({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listGallery>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListGalleryQueryResult = NonNullable<Awaited<ReturnType<typeof listGallery>>>
+export type ListGalleryQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List gallery images
+ */
+
+export function useListGallery<TData = Awaited<ReturnType<typeof listGallery>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listGallery>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListGalleryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateGalleryImageUrl = () => {
+
+
+
+
+  return `/api/gallery`
+}
+
+/**
+ * @summary Add gallery image (admin)
+ */
+export const createGalleryImage = async (galleryImageCreate: GalleryImageCreate, options?: RequestInit): Promise<GalleryImage> => {
+
+  return customFetch<GalleryImage>(getCreateGalleryImageUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(galleryImageCreate)
+  }
+);}
+
+
+
+
+
+export const getCreateGalleryImageMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGalleryImage>>, TError,{data: BodyType<GalleryImageCreate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createGalleryImage>>, TError,{data: BodyType<GalleryImageCreate>}, TContext> => {
+
+const mutationKey = ['createGalleryImage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createGalleryImage>>, {data: BodyType<GalleryImageCreate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createGalleryImage(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateGalleryImageMutationResult = NonNullable<Awaited<ReturnType<typeof createGalleryImage>>>
+    export type CreateGalleryImageMutationBody = BodyType<GalleryImageCreate>
+    export type CreateGalleryImageMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Add gallery image (admin)
+ */
+export const useCreateGalleryImage = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createGalleryImage>>, TError,{data: BodyType<GalleryImageCreate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createGalleryImage>>,
+        TError,
+        {data: BodyType<GalleryImageCreate>},
+        TContext
+      > => {
+      return useMutation(getCreateGalleryImageMutationOptions(options));
+    }
+
+export const getGetGalleryImageUrl = (id: number,) => {
+
+
+
+
+  return `/api/gallery/${id}`
+}
+
+/**
+ * @summary Get gallery image
+ */
+export const getGalleryImage = async (id: number, options?: RequestInit): Promise<GalleryImage> => {
+
+  return customFetch<GalleryImage>(getGetGalleryImageUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGalleryImageQueryKey = (id: number,) => {
+    return [
+    `/api/gallery/${id}`
+    ] as const;
+    }
+
+
+export const getGetGalleryImageQueryOptions = <TData = Awaited<ReturnType<typeof getGalleryImage>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGalleryImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGalleryImageQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGalleryImage>>> = ({ signal }) => getGalleryImage(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGalleryImage>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGalleryImageQueryResult = NonNullable<Awaited<ReturnType<typeof getGalleryImage>>>
+export type GetGalleryImageQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get gallery image
+ */
+
+export function useGetGalleryImage<TData = Awaited<ReturnType<typeof getGalleryImage>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGalleryImage>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGalleryImageQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateGalleryImageUrl = (id: number,) => {
+
+
+
+
+  return `/api/gallery/${id}`
+}
+
+/**
+ * @summary Update gallery image (admin)
+ */
+export const updateGalleryImage = async (id: number,
+    galleryImageUpdate: GalleryImageUpdate, options?: RequestInit): Promise<GalleryImage> => {
+
+  return customFetch<GalleryImage>(getUpdateGalleryImageUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(galleryImageUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateGalleryImageMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGalleryImage>>, TError,{id: number;data: BodyType<GalleryImageUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateGalleryImage>>, TError,{id: number;data: BodyType<GalleryImageUpdate>}, TContext> => {
+
+const mutationKey = ['updateGalleryImage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateGalleryImage>>, {id: number;data: BodyType<GalleryImageUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateGalleryImage(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateGalleryImageMutationResult = NonNullable<Awaited<ReturnType<typeof updateGalleryImage>>>
+    export type UpdateGalleryImageMutationBody = BodyType<GalleryImageUpdate>
+    export type UpdateGalleryImageMutationError = ErrorType<void>
+
+    /**
+ * @summary Update gallery image (admin)
+ */
+export const useUpdateGalleryImage = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateGalleryImage>>, TError,{id: number;data: BodyType<GalleryImageUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateGalleryImage>>,
+        TError,
+        {id: number;data: BodyType<GalleryImageUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateGalleryImageMutationOptions(options));
+    }
+
+export const getDeleteGalleryImageUrl = (id: number,) => {
+
+
+
+
+  return `/api/gallery/${id}`
+}
+
+/**
+ * @summary Delete gallery image (admin)
+ */
+export const deleteGalleryImage = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteGalleryImageUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteGalleryImageMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGalleryImage>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteGalleryImage>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteGalleryImage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteGalleryImage>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteGalleryImage(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteGalleryImageMutationResult = NonNullable<Awaited<ReturnType<typeof deleteGalleryImage>>>
+
+    export type DeleteGalleryImageMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete gallery image (admin)
+ */
+export const useDeleteGalleryImage = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteGalleryImage>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteGalleryImage>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteGalleryImageMutationOptions(options));
     }
 
 export const getGetSettingsUrl = () => {

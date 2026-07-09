@@ -522,6 +522,91 @@ export const DeleteDownloadResponse = zod.void()
 
 
 /**
+ * @summary List gallery images
+ */
+export const ListGalleryResponseItem = zod.object({
+  "id": zod.number(),
+  "imageUrl": zod.string(),
+  "caption": zod.string(),
+  "sortOrder": zod.number(),
+  "published": zod.boolean(),
+  "createdAt": zod.string().optional()
+})
+export const ListGalleryResponse = zod.array(ListGalleryResponseItem)
+
+
+/**
+ * @summary Add gallery image (admin)
+ */
+export const CreateGalleryImageBody = zod.object({
+  "imageUrl": zod.string(),
+  "caption": zod.string().optional(),
+  "sortOrder": zod.number().optional(),
+  "published": zod.boolean().optional()
+})
+
+export const CreateGalleryImageResponse = zod.object({
+  "id": zod.number(),
+  "imageUrl": zod.string(),
+  "caption": zod.string(),
+  "sortOrder": zod.number(),
+  "published": zod.boolean(),
+  "createdAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Get gallery image
+ */
+export const GetGalleryImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetGalleryImageResponse = zod.object({
+  "id": zod.number(),
+  "imageUrl": zod.string(),
+  "caption": zod.string(),
+  "sortOrder": zod.number(),
+  "published": zod.boolean(),
+  "createdAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Update gallery image (admin)
+ */
+export const UpdateGalleryImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateGalleryImageBody = zod.object({
+  "imageUrl": zod.string().optional(),
+  "caption": zod.string().optional(),
+  "sortOrder": zod.number().optional(),
+  "published": zod.boolean().optional()
+})
+
+export const UpdateGalleryImageResponse = zod.object({
+  "id": zod.number(),
+  "imageUrl": zod.string(),
+  "caption": zod.string(),
+  "sortOrder": zod.number(),
+  "published": zod.boolean(),
+  "createdAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Delete gallery image (admin)
+ */
+export const DeleteGalleryImageParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteGalleryImageResponse = zod.void()
+
+
+/**
  * @summary Get site settings
  */
 export const GetSettingsResponse = zod.object({

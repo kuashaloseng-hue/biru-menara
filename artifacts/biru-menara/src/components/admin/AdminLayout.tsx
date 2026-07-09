@@ -11,7 +11,8 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  Images
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -25,6 +26,7 @@ const navItems = [
   { href: "/admin/news", label: "ข่าวสาร", icon: Newspaper },
   { href: "/admin/schedules", label: "ตารางแข่งขัน", icon: CalendarDays },
   { href: "/admin/team", label: "คณะทำงาน", icon: Users },
+  { href: "/admin/gallery", label: "แกลเลอรี่", icon: Images },
   { href: "/admin/downloads", label: "ไฟล์ดาวน์โหลด", icon: Download },
   { href: "/admin/settings", label: "ตั้งค่าเว็บไซต์", icon: Settings },
 ];

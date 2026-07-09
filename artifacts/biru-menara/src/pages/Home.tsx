@@ -7,23 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Newspaper, CalendarDays, Download, Users, ChevronRight, Bell, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
-import { useListAnnouncements, getListAnnouncementsQueryKey, useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
+import { useListAnnouncements, getListAnnouncementsQueryKey, useGetSettings, getGetSettingsQueryKey, useListGallery, getListGalleryQueryKey } from "@workspace/api-client-react";
 
-// Fallback images
+// Fallback images (used only if gallery DB is empty)
 import heroImg from "@assets/1783520581768_1783520763412.jpg";
 import cheerleadersImg from "@assets/generated_images/cheerleaders.jpg";
 import athletesImg from "@assets/generated_images/athletes.jpg";
 import celebrationImg from "@assets/generated_images/celebration.jpg";
 import teamSloganImg from "@assets/1783520586106_1783520776744.jpg";
 import { cn } from "@/lib/utils";
-
-const galleryImages = [
-  { src: heroImg, caption: "เปิดตัว BIRU MENARA" },
-  { src: teamSloganImg, caption: "อุดมการณ์สีฟ้า" },
-  { src: cheerleadersImg, caption: "ซ้อมกองเชียร์สุดพลัง" },
-  { src: athletesImg, caption: "นักกีฬาสีฟ้าพร้อมลุย" },
-  { src: celebrationImg, caption: "ฉลองชัยชนะ" },
-];
 
 const latestNewsFallback = [
   {
@@ -58,9 +50,22 @@ export default function Home() {
   // Live data from API
   const { data: announcements } = useListAnnouncements({ query: { queryKey: getListAnnouncementsQueryKey() } });
   const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
+  const { data: galleryData } = useListGallery({ query: { queryKey: getListGalleryQueryKey() } });
 
   const displayedAnnouncements = announcements?.filter((a) => a.published).slice(0, 4) ?? [];
   const heroBg = settings?.heroImageUrl || heroImg;
+
+  // Gallery: use live DB data if available, otherwise fallback to bundled assets
+  const fallbackGallery = [
+    { id: -1, imageUrl: heroImg as unknown as string, caption: "เปิดตัว BIRU MENARA", published: true, sortOrder: 1 },
+    { id: -2, imageUrl: teamSloganImg as unknown as string, caption: "อุดมการณ์สีฟ้า", published: true, sortOrder: 2 },
+    { id: -3, imageUrl: cheerleadersImg as unknown as string, caption: "ซ้อมกองเชียร์สุดพลัง", published: true, sortOrder: 3 },
+    { id: -4, imageUrl: athletesImg as unknown as string, caption: "นักกีฬาสีฟ้าพร้อมลุย", published: true, sortOrder: 4 },
+    { id: -5, imageUrl: celebrationImg as unknown as string, caption: "ฉลองชัยชนะ", published: true, sortOrder: 5 },
+  ];
+  const galleryImages = (galleryData && galleryData.length > 0)
+    ? galleryData.filter((g) => g.published)
+    : fallbackGallery;
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -201,10 +206,10 @@ export default function Home() {
           <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
             <div className="flex touch-pan-y">
               {galleryImages.map((img, i) => (
-                <div className="flex-[0_0_100%] min-w-0 relative h-[400px] md:h-[600px] mx-2 rounded-2xl overflow-hidden" key={i}>
-                  <img src={img.src} alt={img.caption} className="w-full h-full object-cover" />
+                <div className="flex-[0_0_100%] min-w-0 relative h-[400px] md:h-[600px] mx-2 rounded-2xl overflow-hidden" key={img.id ?? i}>
+                  <img src={img.imageUrl} alt={img.caption} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
-                    <h3 className="text-2xl font-bold text-white drop-shadow-lg">{img.caption}</h3>
+                    {img.caption && <h3 className="text-2xl font-bold text-white drop-shadow-lg">{img.caption}</h3>}
                   </div>
                 </div>
               ))}

@@ -4,3 +4,4 @@ export * from "./schedules";
 export * from "./team_members";
 export * from "./downloads";
 export * from "./settings";
+export * from "./gallery";
