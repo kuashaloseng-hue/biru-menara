@@ -21,7 +21,15 @@ import AdminDownloads from '@/pages/admin/AdminDownloads';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminGallery from '@/pages/admin/AdminGallery';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 0,           // always consider data stale → refetch on mount
+      refetchOnWindowFocus: true, // refetch when user switches back to tab
+      retry: 1,
+    },
+  },
+});
 
 function NotFound() {
   return (

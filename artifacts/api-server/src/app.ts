@@ -67,6 +67,13 @@ app.use(
   }),
 );
 
+// Disable HTTP caching for all API responses so mutations are reflected immediately
+app.use("/api", (_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Pragma", "no-cache");
+  next();
+});
+
 app.use("/api", router);
 
 export default app;
