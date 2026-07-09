@@ -1,4 +1,5 @@
 import { Zap } from "lucide-react";
+import { Link } from "wouter";
 
 export function Footer() {
   return (
@@ -20,9 +21,11 @@ export function Footer() {
             <p className="text-gray-500 text-xs">
               &copy; {new Date().getFullYear()} BIRU MENARA. All Rights Reserved.
             </p>
-            <p className="text-gray-600 text-[10px]">
-              Developed by (Kuasha)
-            </p>
+            <Link href="/admin/login">
+              <p className="text-gray-600 text-[10px] cursor-default hover:text-gray-600 select-none">
+                Developed by (Kuasha)
+              </p>
+            </Link>
           </div>
         </div>
       </div>
