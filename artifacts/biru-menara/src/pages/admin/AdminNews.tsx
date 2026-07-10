@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import {
   useListNews,
@@ -9,7 +9,7 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
@@ -41,12 +41,30 @@ function SortableNewsRow({
   item, onEdit, onDelete,
 }: { item: NewsItem; onEdit: (item: NewsItem) => void; onDelete: (id: number) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  // CSS.Transform.toString can produce transforms that don't render on <tr> in some
+  // browsers. Use translate only (skip scale) and set will-change so the browser
+  // creates a compositing layer for the row during the drag.
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    willChange: isDragging ? "transform" : undefined,
+    position: "relative",
+    zIndex: isDragging ? 9999 : undefined,
+    background: isDragging ? "rgba(0,150,255,0.08)" : undefined,
+  };
 
   return (
     <TableRow ref={setNodeRef} style={style} className="border-b border-white/5 hover:bg-white/5">
-      <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
-        <GripVertical className="w-4 h-4 text-gray-600 hover:text-gray-400" />
+      {/* Drag handle — touch-action none so touch events reach dnd-kit */}
+      <TableCell
+        className="w-10 select-none"
+        style={{ touchAction: "none", cursor: "grab" }}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-5 h-5 text-gray-500 hover:text-gray-300 transition-colors" />
       </TableCell>
       <TableCell>
         {item.imageUrl ? (
@@ -87,6 +105,12 @@ export default function AdminNews() {
   const queryClient = useQueryClient();
   const { data: news, isLoading } = useListNews({ query: { queryKey: getListNewsQueryKey() } });
 
+  // Local copy for optimistic drag reorder — synced from server data on load/refetch
+  const [localItems, setLocalItems] = useState<NewsItem[]>([]);
+  useEffect(() => {
+    if (news) setLocalItems(news as NewsItem[]);
+  }, [news]);
+
   const createNews = useCreateNewsPost();
   const updateNews = useUpdateNewsPost();
   const deleteNews = useDeleteNewsPost();
@@ -101,7 +125,12 @@ export default function AdminNews() {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  // PointerSensor handles both mouse and stylus; TouchSensor covers touchscreens.
+  // activationConstraint.distance=5 prevents accidental drag on click.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+  );
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getListNewsQueryKey() });
 
@@ -144,22 +173,27 @@ export default function AdminNews() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id || !news) return;
-    const items = [...news] as NewsItem[];
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = localItems.findIndex((i) => i.id === active.id);
+    const newIndex = localItems.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistically update local state so the UI moves immediately
+    const reordered = arrayMove(localItems, oldIndex, newIndex);
+    setLocalItems(reordered);
+
+    // Persist new sortOrder values to the server
     try {
       await Promise.all(
         reordered.map((item, idx) =>
-          item.sortOrder !== idx
-            ? updateNews.mutateAsync({ id: item.id, data: { sortOrder: idx } })
-            : Promise.resolve()
+          updateNews.mutateAsync({ id: item.id, data: { sortOrder: idx } })
         )
       );
+      toast.success("เรียงลำดับสำเร็จ");
     } catch {
       toast.error("เรียงลำดับไม่สำเร็จ กรุณาลองใหม่");
-    } finally {
+      // Roll back to server state on error
       invalidate();
     }
   };
@@ -169,7 +203,7 @@ export default function AdminNews() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">จัดการข่าวสาร</h1>
-          <p className="text-muted-foreground">ลากเพื่อเรียงลำดับ • เพิ่ม แก้ไข ลบ ข่าวสาร</p>
+          <p className="text-muted-foreground">ลากที่ ⠿ เพื่อเรียงลำดับ • เพิ่ม แก้ไข ลบ ข่าวสาร</p>
         </div>
         <Button onClick={handleOpenCreate} className="gap-2">
           <Plus className="w-4 h-4" /> เพิ่มข่าวสาร
@@ -180,7 +214,7 @@ export default function AdminNews() {
         <Table>
           <TableHeader className="bg-white/5 border-b border-white/10">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-8" />
+              <TableHead className="w-10" />
               <TableHead className="text-white w-20">รูปภาพ</TableHead>
               <TableHead className="text-white">หัวข้อข่าว</TableHead>
               <TableHead className="text-white w-40">หมวดหมู่</TableHead>
@@ -191,12 +225,12 @@ export default function AdminNews() {
           <TableBody>
             {isLoading ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">กำลังโหลด...</TableCell></TableRow>
-            ) : !news?.length ? (
+            ) : !localItems.length ? (
               <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">ยังไม่มีข่าวสาร</TableCell></TableRow>
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={(news as NewsItem[]).map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                  {(news as NewsItem[]).map((item) => (
+                <SortableContext items={localItems.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                  {localItems.map((item) => (
                     <SortableNewsRow key={item.id} item={item} onEdit={handleOpenEdit} onDelete={confirmDelete} />
                   ))}
                 </SortableContext>

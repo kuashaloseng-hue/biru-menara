@@ -5,6 +5,7 @@ import { Route, Switch, Router as WouterRouter } from 'wouter';
 
 import Home from '@/pages/Home';
 import News from '@/pages/News';
+import NewsDetail from '@/pages/NewsDetail';
 import Schedule from '@/pages/Schedule';
 import Downloads from '@/pages/Downloads';
 import Team from '@/pages/Team';
@@ -52,6 +53,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/news" component={News} />
+      <Route path="/news/:id" component={NewsDetail} />
       <Route path="/schedule" component={Schedule} />
       <Route path="/downloads" component={Downloads} />
       <Route path="/team" component={Team} />

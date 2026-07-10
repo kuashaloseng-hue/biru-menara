@@ -5,10 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Newspaper, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { useListNews, getListNewsQueryKey } from "@workspace/api-client-react";
 import { ImageIcon } from "lucide-react";
 
 export default function News() {
+  const [, setLocation] = useLocation();
   const { data: allNews, isLoading } = useListNews({ query: { queryKey: getListNewsQueryKey() } });
   const published = allNews?.filter((n) => n.published) ?? [];
 
@@ -65,8 +67,10 @@ export default function News() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: i * 0.08 }}
+                    className="cursor-pointer"
+                    onClick={() => setLocation(`/news/${news.id}`)}
                   >
-                    <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
+                    <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group h-full flex flex-col">
                       <div className="h-56 overflow-hidden relative bg-gradient-to-br from-primary/20 to-accent/10">
                         {news.imageUrl ? (
                           <img
@@ -96,7 +100,11 @@ export default function News() {
                         </h3>
                         <p className="text-gray-400 text-sm mb-6 flex-1 line-clamp-3">{news.excerpt}</p>
                         <div className="mt-auto">
-                          <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
+                          <Button
+                            variant="outline"
+                            className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all"
+                            onClick={(e) => { e.stopPropagation(); setLocation(`/news/${news.id}`); }}
+                          >
                             อ่านเพิ่มเติม <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </div>
