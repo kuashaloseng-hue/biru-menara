@@ -7,6 +7,11 @@ import { logger } from "./lib/logger";
 
 const app: Express = express();
 
+// Trust Replit's reverse proxy so that req.ip and req.secure reflect the
+// real client values. Required for session cookies with secure: true in
+// production (the proxy terminates TLS, server sees plain HTTP).
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,
