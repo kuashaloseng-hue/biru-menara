@@ -7,9 +7,10 @@ export const schedulesTable = pgTable("schedules", {
   sport: text("sport").notNull(),
   gender: text("gender").notNull(),
   level: text("level").notNull(),
-  venue: text("venue").notNull(),
-  date: text("date").notNull(),
-  time: text("time").notNull(),
+  venue: text("venue"),                  // nullable — admin fills in later
+  date: text("date"),                    // nullable
+  time: text("time"),                    // nullable
+  notes: text("notes"),                  // nullable — new field
   status: text("status").notNull().default("รอแข่งขัน"),
   result: text("result"),
   sortOrder: integer("sort_order").notNull().default(0),

@@ -26,7 +26,15 @@ router.get("/schedules", async (_req, res): Promise<void> => {
 router.post("/schedules", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateScheduleBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const data = { ...parsed.data, sortOrder: parsed.data.sortOrder ?? 0, status: parsed.data.status ?? "รอแข่งขัน" };
+  const data = {
+    ...parsed.data,
+    sortOrder: parsed.data.sortOrder ?? 0,
+    status: parsed.data.status ?? "รอแข่งขัน",
+    venue: parsed.data.venue ?? null,
+    date: parsed.data.date ?? null,
+    time: parsed.data.time ?? null,
+    notes: parsed.data.notes ?? null,
+  };
   const [row] = await db.insert(schedulesTable).values(data).returning();
   res.status(201).json(CreateScheduleResponse.parse(mapRow(row)));
 });

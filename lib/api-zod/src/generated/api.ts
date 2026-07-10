@@ -275,9 +275,10 @@ export const ListSchedulesResponseItem = zod.object({
   "sport": zod.string(),
   "gender": zod.string(),
   "level": zod.string(),
-  "venue": zod.string(),
-  "date": zod.string(),
-  "time": zod.string(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
   "status": zod.string(),
   "result": zod.string().nullish(),
   "sortOrder": zod.number(),
@@ -293,10 +294,11 @@ export const CreateScheduleBody = zod.object({
   "sport": zod.string(),
   "gender": zod.string(),
   "level": zod.string(),
-  "venue": zod.string(),
-  "date": zod.string(),
-  "time": zod.string(),
-  "status": zod.string(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "status": zod.string().optional(),
   "result": zod.string().nullish(),
   "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
@@ -307,9 +309,10 @@ export const CreateScheduleResponse = zod.object({
   "sport": zod.string(),
   "gender": zod.string(),
   "level": zod.string(),
-  "venue": zod.string(),
-  "date": zod.string(),
-  "time": zod.string(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
   "status": zod.string(),
   "result": zod.string().nullish(),
   "sortOrder": zod.number(),
@@ -329,9 +332,10 @@ export const GetScheduleResponse = zod.object({
   "sport": zod.string(),
   "gender": zod.string(),
   "level": zod.string(),
-  "venue": zod.string(),
-  "date": zod.string(),
-  "time": zod.string(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
   "status": zod.string(),
   "result": zod.string().nullish(),
   "sortOrder": zod.number(),
@@ -350,12 +354,14 @@ export const UpdateScheduleBody = zod.object({
   "sport": zod.string().optional(),
   "gender": zod.string().optional(),
   "level": zod.string().optional(),
-  "venue": zod.string().optional(),
-  "date": zod.string().optional(),
-  "time": zod.string().optional(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
   "status": zod.string().optional(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number().optional()
+  "sortOrder": zod.number().optional(),
+  "published": zod.boolean().optional()
 })
 
 export const UpdateScheduleResponse = zod.object({
@@ -363,9 +369,10 @@ export const UpdateScheduleResponse = zod.object({
   "sport": zod.string(),
   "gender": zod.string(),
   "level": zod.string(),
-  "venue": zod.string(),
-  "date": zod.string(),
-  "time": zod.string(),
+  "venue": zod.string().nullish(),
+  "date": zod.string().nullish(),
+  "time": zod.string().nullish(),
+  "notes": zod.string().nullish(),
   "status": zod.string(),
   "result": zod.string().nullish(),
   "sortOrder": zod.number(),
@@ -742,5 +749,39 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
+
+// ── Athletes ──────────────────────────────────────────────────────────────────
+
+export const AthleteItem = zod.object({
+  "id": zod.number(),
+  "scheduleId": zod.number(),
+  "name": zod.string(),
+  "studentId": zod.string(),
+  "grade": zod.string(),
+  "sortOrder": zod.number(),
+})
+
+export const ListScheduleAthletesParams = zod.object({ "scheduleId": zod.coerce.number() })
+export const ListScheduleAthletesResponse = zod.array(AthleteItem)
+
+export const CreateAthleteBody = zod.object({
+  "name": zod.string().min(1),
+  "studentId": zod.string().optional(),
+  "grade": zod.string().optional(),
+  "sortOrder": zod.number().optional(),
+})
+export const CreateAthleteResponse = AthleteItem
+
+export const UpdateAthleteParams = zod.object({ "id": zod.coerce.number() })
+export const UpdateAthleteBody = zod.object({
+  "name": zod.string().optional(),
+  "studentId": zod.string().optional(),
+  "grade": zod.string().optional(),
+  "sortOrder": zod.number().optional(),
+})
+export const UpdateAthleteResponse = AthleteItem
+
+export const DeleteAthleteParams = zod.object({ "id": zod.coerce.number() })
+export const DeleteAthleteResponse = zod.void()
 
 

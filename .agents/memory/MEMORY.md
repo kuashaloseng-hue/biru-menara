@@ -1,2 +1,3 @@
 - [BIRU MENARA admin system](biru-menara-admin.md) — session auth, CSRF, DB schema, mapRow pattern for Date→string conversion
+- [BIRU MENARA dist sync rule](biru-menara-dist-sync.md) — api-server uses tsc project references; must update both dist .d.ts AND src when changing lib/db or lib/api-zod schemas
 - [Deployment debugging](deployment-debug.md) — autoscale health check failures: lazy Storage init, /api fallback routes, ESM handler ordering, 0.0.0.0 binding
