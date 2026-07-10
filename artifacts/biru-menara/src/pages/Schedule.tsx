@@ -281,15 +281,6 @@ export default function Schedule() {
             </motion.div>
           </AnimatePresence>
         )}
-
-        {/* Footnote */}
-        <div className="mt-10 glass rounded-xl p-5 border border-white/10">
-          <p className="text-sm font-bold text-white mb-3">หมายเหตุ</p>
-          <ul className="text-sm text-gray-400 space-y-1.5 list-disc list-inside leading-relaxed">
-            <li>การแข่งขันประเภทเดี่ยว สามารถเปลี่ยนตัวนักกีฬาจากการแข่งขันรอบที่ 1 เท่านั้น</li>
-            <li>หากนักกีฬาแข่งขันรอบที่ 1 หรือรอบอื่นๆ มีอาการบาดเจ็บในภายหลัง สมควรให้ไม่สามารถแข่งขันได้โดยรวม กรณีนี้จะไม่สามารถเปลี่ยนตัวนักกีฬาได้</li>
-          </ul>
-        </div>
       </div>
     </Layout>
   );
