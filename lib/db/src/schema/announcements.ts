@@ -8,6 +8,7 @@ export const announcementsTable = pgTable("announcements", {
   content: text("content").notNull(),
   date: text("date").notNull(),
   urgent: boolean("urgent").notNull().default(false),
+  imageUrl: text("image_url"),
   published: boolean("published").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

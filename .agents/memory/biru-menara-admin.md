@@ -1,29 +1,41 @@
 ---
-name: BIRU MENARA Admin System
-description: Architecture decisions and gotchas for the admin backend and frontend added to artifacts/biru-menara and artifacts/api-server.
+name: BIRU MENARA admin system
+description: Auth, DB schema, API patterns, and key decisions for the BIRU MENARA project
 ---
 
-# BIRU MENARA Admin System
+## Auth
+- Session auth via `express-session` + `SESSION_SECRET` env secret
+- CSRF check on mutations via `requireAdmin` middleware
+- Admin password: DB `site_settings.admin_password` takes priority over `ADMIN_PASSWORD` env var (fallback chain in `getEffectivePassword()` in `routes/admin.ts`)
+- Change-password endpoint: `POST /api/admin/change-password` (requireAdmin)
 
-## Date→string conversion
-Drizzle returns `timestamp` columns as JS `Date` objects. Orval-generated Zod schemas expect `string`. All route handlers use `mapRow`/`mapRows` from `artifacts/api-server/src/lib/mapRow.ts` to convert dates to ISO strings before Zod `.parse()`.
+## DB schema (Drizzle + PostgreSQL)
+Tables: `announcements`, `news`, `schedules`, `team_members`, `downloads`, `site_settings`, `gallery`
 
-**Why:** Without this, every API response throws a ZodError ("Expected string, received date").
+Key fields:
+- `announcements`: has `imageUrl`, `urgent`, `published`
+- `news`: has `imageUrl`, `published`
+- `team_members`: uses `memberType` (values: `main`/`sub`), has `published`
+- `site_settings`: has `adminPassword` (nullable, overrides env var), `navItems` (JSON string), `heroImageUrl`, `logoUrl`
+- `gallery`: `imageUrl`, `caption`, `sortOrder`, `published`
 
-**How to apply:** Always call `mapRow(row)` / `mapRows(rows)` before passing DB rows to generated Zod parsers.
+## mapRow pattern
+All Drizzle `Date` fields must be converted to ISO strings before Zod parse. Use `mapRow(row)` / `mapRows(rows)` from `artifacts/api-server/src/lib/mapRow.ts`.
 
-## Admin auth
-- `ADMIN_PASSWORD` secret is required at startup — the route returns 500 if unset (no fallback default).
-- `SESSION_SECRET` is required at startup via `express-session`.
-- Session cookies use `sameSite: "lax"` to help block cross-site forgery.
-- CSRF middleware (`csrfCheck.ts`) blocks non-GET state-changing requests from unknown origins.
-- CORS is restricted to localhost and `REPLIT_DEV_DOMAIN` with credentials.
+## Public page nav (Navbar.tsx)
+Reads `settings.navItems` (JSON string) to show/hide pages. Format: `{"news":true,"schedule":false,...}`. Home always shown. Defaults to all visible if null.
 
-## DB tables added
-`announcements`, `news`, `schedules`, `team_members`, `downloads`, `site_settings` — all in `lib/db/src/schema/`.
+## TeamMember type contract
+Admin creates members as `memberType: "main"` (leaders) or `"sub"` (staff). Public Team.tsx filters: `m.memberType === "main"` → leaders section.
 
-## Session storage
-Using in-memory `express-session` store (acceptable for a single-server school site). If scaling up, replace with `connect-pg-simple` or Redis store.
+## Gallery drag-reorder
+Uses @dnd-kit/core + @dnd-kit/sortable. On drag-end: `Promise.all` for all changed sortOrders → single invalidate after all complete. Falls back to empty (no AI images) when DB gallery is empty.
 
-## Admin UI
-Pages at `artifacts/biru-menara/src/pages/admin/`. Protected by `AdminGuard` component that calls `/api/admin/me`. Unauthenticated users redirected to `/admin/login`.
+## Codegen
+- `pnpm --filter @workspace/api-spec run codegen` regenerates both `lib/api-zod` and `lib/api-client-react`
+- `lib/api-zod/src/index.ts` must not have duplicate export lines (orval + old handwritten)
+- `lib/api-client-react/src/index.ts` same — deduplicate if it gains duplicate lines
+
+## Cache
+- API server: `Cache-Control: no-store` on all `/api/*` (in `app.ts`)
+- React Query: `staleTime: 0` + `refetchOnWindowFocus: true` in App.tsx QueryClient

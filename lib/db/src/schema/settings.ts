@@ -13,6 +13,8 @@ export const settingsTable = pgTable("site_settings", {
   heroSubSlogan: text("hero_sub_slogan").notNull().default("หนึ่งใจ หนึ่งพลัง สายน้ำเดียวกัน เพื่อศักดิ์ศรีฟ้าแห่งนรา"),
   heroImageUrl: text("hero_image_url"),
   logoUrl: text("logo_url"),
+  adminPassword: text("admin_password"),
+  navItems: text("nav_items"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 

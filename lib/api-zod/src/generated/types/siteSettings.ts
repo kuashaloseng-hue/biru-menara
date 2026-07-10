@@ -20,4 +20,6 @@ export interface SiteSettings {
   heroImageUrl?: string | null;
   /** @nullable */
   logoUrl?: string | null;
+  /** @nullable */
+  navItems?: string | null;
 }

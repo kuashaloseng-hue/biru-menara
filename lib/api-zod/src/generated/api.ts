@@ -43,6 +43,19 @@ export const AdminMeResponse = zod.object({
 
 
 /**
+ * @summary Change admin password (admin)
+ */
+export const AdminChangePasswordBody = zod.object({
+  "currentPassword": zod.string(),
+  "newPassword": zod.string()
+})
+
+export const AdminChangePasswordResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary List all announcements
  */
 export const ListAnnouncementsResponseItem = zod.object({
@@ -51,6 +64,7 @@ export const ListAnnouncementsResponseItem = zod.object({
   "content": zod.string(),
   "date": zod.string(),
   "urgent": zod.boolean(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -65,6 +79,7 @@ export const CreateAnnouncementBody = zod.object({
   "content": zod.string(),
   "date": zod.string(),
   "urgent": zod.boolean().optional(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean().optional()
 })
 
@@ -74,6 +89,7 @@ export const CreateAnnouncementResponse = zod.object({
   "content": zod.string(),
   "date": zod.string(),
   "urgent": zod.boolean(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -92,6 +108,7 @@ export const GetAnnouncementResponse = zod.object({
   "content": zod.string(),
   "date": zod.string(),
   "urgent": zod.boolean(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -109,6 +126,7 @@ export const UpdateAnnouncementBody = zod.object({
   "content": zod.string().optional(),
   "date": zod.string().optional(),
   "urgent": zod.boolean().optional(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean().optional()
 })
 
@@ -118,6 +136,7 @@ export const UpdateAnnouncementResponse = zod.object({
   "content": zod.string(),
   "date": zod.string(),
   "urgent": zod.boolean(),
+  "imageUrl": zod.string().nullish(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -634,7 +653,8 @@ export const GetSettingsResponse = zod.object({
   "heroSlogan": zod.string(),
   "heroSubSlogan": zod.string(),
   "heroImageUrl": zod.string().nullish(),
-  "logoUrl": zod.string().nullish()
+  "logoUrl": zod.string().nullish(),
+  "navItems": zod.string().nullish()
 })
 
 
@@ -650,7 +670,8 @@ export const UpdateSettingsBody = zod.object({
   "heroSlogan": zod.string().optional(),
   "heroSubSlogan": zod.string().optional(),
   "heroImageUrl": zod.string().nullish(),
-  "logoUrl": zod.string().nullish()
+  "logoUrl": zod.string().nullish(),
+  "navItems": zod.string().nullish()
 })
 
 export const UpdateSettingsResponse = zod.object({
@@ -663,7 +684,8 @@ export const UpdateSettingsResponse = zod.object({
   "heroSlogan": zod.string(),
   "heroSubSlogan": zod.string(),
   "heroImageUrl": zod.string().nullish(),
-  "logoUrl": zod.string().nullish()
+  "logoUrl": zod.string().nullish(),
+  "navItems": zod.string().nullish()
 })
 
 

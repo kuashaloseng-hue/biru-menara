@@ -19,4 +19,6 @@ export interface SiteSettingsUpdate {
   heroImageUrl?: string | null;
   /** @nullable */
   logoUrl?: string | null;
+  /** @nullable */
+  navItems?: string | null;
 }

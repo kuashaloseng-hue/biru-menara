@@ -23,6 +23,8 @@ export interface Announcement {
   content: string;
   date: string;
   urgent: boolean;
+  /** @nullable */
+  imageUrl?: string | null;
   published: boolean;
   createdAt: string;
 }
@@ -32,6 +34,8 @@ export interface AnnouncementInput {
   content: string;
   date: string;
   urgent?: boolean;
+  /** @nullable */
+  imageUrl?: string | null;
   published?: boolean;
 }
 
@@ -40,6 +44,8 @@ export interface AnnouncementUpdate {
   content?: string;
   date?: string;
   urgent?: boolean;
+  /** @nullable */
+  imageUrl?: string | null;
   published?: boolean;
 }
 
@@ -191,6 +197,8 @@ export interface SiteSettings {
   heroImageUrl?: string | null;
   /** @nullable */
   logoUrl?: string | null;
+  /** @nullable */
+  navItems?: string | null;
 }
 
 export interface GalleryImage {
@@ -229,5 +237,16 @@ export interface SiteSettingsUpdate {
   heroImageUrl?: string | null;
   /** @nullable */
   logoUrl?: string | null;
+  /** @nullable */
+  navItems?: string | null;
+}
+
+export interface ChangePwBody {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResult {
+  ok: boolean;
 }
 

@@ -1,8 +1,19 @@
 import { Router } from "express";
 import type { IRouter } from "express";
-import { AdminLoginBody, AdminLoginResponse, AdminMeResponse } from "@workspace/api-zod";
+import { AdminLoginBody, AdminLoginResponse, AdminMeResponse, AdminChangePasswordBody, AdminChangePasswordResponse } from "@workspace/api-zod";
+import { db, settingsTable } from "@workspace/db";
+import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router: IRouter = Router();
+
+async function getEffectivePassword(): Promise<string | null> {
+  // DB-stored password takes priority; fall back to env var
+  try {
+    const [row] = await db.select().from(settingsTable).limit(1);
+    if (row?.adminPassword) return row.adminPassword;
+  } catch { /* ignore DB errors, fall back to env */ }
+  return process.env.ADMIN_PASSWORD ?? null;
+}
 
 router.post("/admin/login", async (req, res): Promise<void> => {
   const parsed = AdminLoginBody.safeParse(req.body);
@@ -11,12 +22,12 @@ router.post("/admin/login", async (req, res): Promise<void> => {
     return;
   }
 
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (!adminPassword) {
+  const effectivePassword = await getEffectivePassword();
+  if (!effectivePassword) {
     res.status(500).json({ error: "Server misconfiguration: ADMIN_PASSWORD not set" });
     return;
   }
-  if (parsed.data.password !== adminPassword) {
+  if (parsed.data.password !== effectivePassword) {
     res.status(401).json({ error: "รหัสผ่านไม่ถูกต้อง" });
     return;
   }
@@ -25,6 +36,31 @@ router.post("/admin/login", async (req, res): Promise<void> => {
   s["isAdmin"] = true;
 
   res.json(AdminLoginResponse.parse({ isAdmin: true }));
+});
+
+router.post("/admin/change-password", requireAdmin, async (req, res): Promise<void> => {
+  const parsed = AdminChangePasswordBody.safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+
+  const effective = await getEffectivePassword();
+  if (!effective || parsed.data.currentPassword !== effective) {
+    res.status(401).json({ error: "รหัสผ่านปัจจุบันไม่ถูกต้อง" });
+    return;
+  }
+  if (parsed.data.newPassword.length < 6) {
+    res.status(400).json({ error: "รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร" });
+    return;
+  }
+
+  // Ensure settings row exists
+  let [row] = await db.select().from(settingsTable).limit(1);
+  if (!row) {
+    [row] = await db.insert(settingsTable).values({}).returning();
+  }
+  const { eq } = await import("drizzle-orm");
+  await db.update(settingsTable).set({ adminPassword: parsed.data.newPassword }).where(eq(settingsTable.id, row.id));
+
+  res.json(AdminChangePasswordResponse.parse({ ok: true }));
 });
 
 router.post("/admin/logout", async (req, res): Promise<void> => {

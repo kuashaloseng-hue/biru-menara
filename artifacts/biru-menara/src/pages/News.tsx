@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Newspaper, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useListNews, getListNewsQueryKey } from "@workspace/api-client-react";
-import cheerleadersImg from "@assets/generated_images/cheerleaders.jpg";
+import { ImageIcon } from "lucide-react";
 
 export default function News() {
   const { data: allNews, isLoading } = useListNews({ query: { queryKey: getListNewsQueryKey() } });
@@ -67,13 +67,19 @@ export default function News() {
                     transition={{ duration: 0.4, delay: i * 0.08 }}
                   >
                     <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
-                      <div className="h-56 overflow-hidden relative">
-                        <img
-                          src={news.imageUrl || cheerleadersImg}
-                          alt={news.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+                      <div className="h-56 overflow-hidden relative bg-gradient-to-br from-primary/20 to-accent/10">
+                        {news.imageUrl ? (
+                          <img
+                            src={news.imageUrl}
+                            alt={news.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <ImageIcon className="w-16 h-16 text-primary/30" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60 pointer-events-none"></div>
                         <div className="absolute top-4 left-4">
                           <Badge
                             variant={news.category === "ข่าวด่วน" ? "destructive" : "default"}

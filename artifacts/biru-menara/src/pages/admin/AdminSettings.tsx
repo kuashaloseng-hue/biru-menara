@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { 
-  useGetSettings, 
+import {
+  useGetSettings,
   useUpdateSettings,
-  getGetSettingsQueryKey
+  useAdminChangePassword,
+  getGetSettingsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,14 +12,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Instagram, Facebook, MapPin, Phone, Save, Image, Type } from "lucide-react";
+import { Instagram, Facebook, MapPin, Phone, Save, Image, Type, Lock, Eye, EyeOff, Menu } from "lucide-react";
 
+// ─── Default nav visibility ───────────────────────────────────────────────────
+const NAV_KEYS = [
+  { key: "news",      label: "ข่าวสาร" },
+  { key: "schedule",  label: "ตารางแข่งขัน" },
+  { key: "downloads", label: "ดาวน์โหลด" },
+  { key: "team",      label: "คณะทำงาน" },
+  { key: "contact",   label: "ติดต่อ" },
+];
+
+function parseNavItems(raw: string | null | undefined): Record<string, boolean> {
+  try { if (raw) return JSON.parse(raw); } catch { /* ignore */ }
+  return Object.fromEntries(NAV_KEYS.map((n) => [n.key, true]));
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 export default function AdminSettings() {
   const queryClient = useQueryClient();
   const { data: settings, isLoading } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
   const updateSettings = useUpdateSettings();
 
+  // ── Site settings form ──
   const [formData, setFormData] = useState({
     instagram: "",
     facebook: "",
@@ -30,20 +48,22 @@ export default function AdminSettings() {
     heroImageUrl: "",
     logoUrl: "",
   });
+  const [navItems, setNavItems] = useState<Record<string, boolean>>(parseNavItems(null));
 
   useEffect(() => {
     if (settings) {
       setFormData({
-        instagram: settings.instagram || "",
-        facebook: settings.facebook || "",
-        address: settings.address || "",
-        phone: settings.phone || "",
-        heroTitle: settings.heroTitle || "",
-        heroSlogan: settings.heroSlogan || "",
+        instagram:    settings.instagram || "",
+        facebook:     settings.facebook || "",
+        address:      settings.address || "",
+        phone:        settings.phone || "",
+        heroTitle:    settings.heroTitle || "",
+        heroSlogan:   settings.heroSlogan || "",
         heroSubSlogan: settings.heroSubSlogan || "",
         heroImageUrl: settings.heroImageUrl || "",
-        logoUrl: settings.logoUrl || "",
+        logoUrl:      settings.logoUrl || "",
       });
+      setNavItems(parseNavItems(settings.navItems));
     }
   }, [settings]);
 
@@ -51,26 +71,42 @@ export default function AdminSettings() {
     const payload = {
       ...formData,
       heroImageUrl: formData.heroImageUrl || null,
-      logoUrl: formData.logoUrl || null,
-      phone: formData.phone || null,
+      logoUrl:      formData.logoUrl || null,
+      phone:        formData.phone || null,
+      navItems:     JSON.stringify(navItems),
     };
     updateSettings.mutate({ data: payload }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetSettingsQueryKey() });
         toast.success("บันทึกการตั้งค่าสำเร็จ");
       },
-      onError: () => {
-        toast.error("เกิดข้อผิดพลาดในการบันทึก");
-      }
+      onError: () => toast.error("เกิดข้อผิดพลาดในการบันทึก"),
     });
   };
 
-  if (isLoading) {
-    return (
-      <AdminLayout>
-        <div className="text-center py-20 text-muted-foreground">กำลังโหลด...</div>
-      </AdminLayout>
+  // ── Password change ──
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [showPw, setShowPw] = useState(false);
+  const changePw = useAdminChangePassword();
+
+  const handleChangePw = () => {
+    if (!pwForm.current || !pwForm.next) { toast.error("กรอกรหัสผ่านให้ครบ"); return; }
+    if (pwForm.next.length < 6) { toast.error("รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร"); return; }
+    if (pwForm.next !== pwForm.confirm) { toast.error("รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน"); return; }
+    changePw.mutate(
+      { data: { currentPassword: pwForm.current, newPassword: pwForm.next } },
+      {
+        onSuccess: () => { toast.success("เปลี่ยนรหัสผ่านสำเร็จ"); setPwForm({ current: "", next: "", confirm: "" }); },
+        onError: (e: unknown) => {
+          const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+          toast.error(msg || "รหัสผ่านปัจจุบันไม่ถูกต้อง");
+        },
+      }
     );
+  };
+
+  if (isLoading) {
+    return <AdminLayout><div className="text-center py-20 text-muted-foreground">กำลังโหลด...</div></AdminLayout>;
   }
 
   return (
@@ -78,10 +114,10 @@ export default function AdminSettings() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">ตั้งค่าเว็บไซต์</h1>
-          <p className="text-muted-foreground">แก้ไขรูปภาพ ข้อความหลัก และช่องทางการติดต่อ</p>
+          <p className="text-muted-foreground">แก้ไขรูปภาพ ข้อความหลัก เมนูนำทาง และช่องทางการติดต่อ</p>
         </div>
         <Button onClick={handleSave} disabled={updateSettings.isPending} className="gap-2 px-6">
-          <Save className="w-4 h-4" /> บันทึกการเปลี่ยนแปลง
+          <Save className="w-4 h-4" /> บันทึกทั้งหมด
         </Button>
       </div>
 
@@ -95,11 +131,10 @@ export default function AdminSettings() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="heroImageUrl" className="flex items-center gap-2">
+              <Label className="flex items-center gap-2">
                 <Image className="w-4 h-4 text-blue-400" /> URL ภาพพื้นหลัง (Hero)
               </Label>
               <Input
-                id="heroImageUrl"
                 value={formData.heroImageUrl}
                 onChange={(e) => setFormData({...formData, heroImageUrl: e.target.value})}
                 className="bg-black/30 border-white/10"
@@ -107,23 +142,18 @@ export default function AdminSettings() {
               />
               {formData.heroImageUrl && (
                 <div className="mt-2 rounded-lg overflow-hidden border border-white/10 h-32">
-                  <img
-                    src={formData.heroImageUrl}
-                    alt="Hero preview"
-                    className="w-full h-full object-cover opacity-70"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
+                  <img src={formData.heroImageUrl} alt="Hero preview" className="w-full h-full object-cover opacity-70"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 </div>
               )}
               <p className="text-xs text-muted-foreground">ใส่ URL รูปภาพ หรือวางลิงก์จาก Google Drive / Imgur ฯลฯ</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logoUrl" className="flex items-center gap-2">
+              <Label className="flex items-center gap-2">
                 <Type className="w-4 h-4 text-cyan-400" /> URL โลโก้ (ไม่บังคับ)
               </Label>
               <Input
-                id="logoUrl"
                 value={formData.logoUrl}
                 onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
                 className="bg-black/30 border-white/10"
@@ -131,12 +161,8 @@ export default function AdminSettings() {
               />
               {formData.logoUrl && (
                 <div className="mt-2 p-3 rounded-lg bg-black/40 border border-white/10 flex items-center gap-3">
-                  <img
-                    src={formData.logoUrl}
-                    alt="Logo preview"
-                    className="h-10 w-auto object-contain"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
+                  <img src={formData.logoUrl} alt="Logo preview" className="h-10 w-auto object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   <span className="text-xs text-muted-foreground">ตัวอย่างโลโก้</span>
                 </div>
               )}
@@ -148,38 +174,110 @@ export default function AdminSettings() {
         {/* Hero Text */}
         <Card className="glass border-white/5">
           <CardHeader>
-            <CardTitle className="text-xl text-primary">ข้อความหน้าแรก (Hero Section)</CardTitle>
+            <CardTitle className="text-xl text-primary">ข้อความหน้าแรก (Hero)</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="heroTitle">พาดหัวหลัก</Label>
-              <Input 
-                id="heroTitle" 
-                value={formData.heroTitle} 
-                onChange={(e) => setFormData({...formData, heroTitle: e.target.value})} 
-                className="bg-black/30 border-white/10 text-lg font-bold"
+              <Label>พาดหัวหลัก</Label>
+              <Input value={formData.heroTitle} onChange={(e) => setFormData({...formData, heroTitle: e.target.value})}
+                className="bg-black/30 border-white/10 text-lg font-bold" />
+            </div>
+            <div className="space-y-2">
+              <Label>สโลแกนหลัก</Label>
+              <Textarea rows={2} value={formData.heroSlogan} onChange={(e) => setFormData({...formData, heroSlogan: e.target.value})}
+                className="bg-black/30 border-white/10 resize-none" />
+            </div>
+            <div className="space-y-2">
+              <Label>ข้อความรอง</Label>
+              <Textarea rows={2} value={formData.heroSubSlogan} onChange={(e) => setFormData({...formData, heroSubSlogan: e.target.value})}
+                className="bg-black/30 border-white/10 resize-none" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Nav Items */}
+        <Card className="glass border-white/5">
+          <CardHeader>
+            <CardTitle className="text-xl text-primary flex items-center gap-2">
+              <Menu className="w-5 h-5" /> เมนูนำทาง (แสดง/ซ่อน)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">เลือกหน้าที่จะแสดงในเมนูบนเว็บ — "หน้าแรก" แสดงเสมอ</p>
+            {NAV_KEYS.map((nav) => (
+              <div key={nav.key} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                <Label className="cursor-pointer text-white font-medium">{nav.label}</Label>
+                <Switch
+                  checked={navItems[nav.key] !== false}
+                  onCheckedChange={(v) => setNavItems({ ...navItems, [nav.key]: v })}
+                />
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-2">
+              💡 อย่าลืมกด <strong className="text-white">บันทึกทั้งหมด</strong> หลังจากปรับเมนู
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Change Password */}
+        <Card className="glass border-white/5">
+          <CardHeader>
+            <CardTitle className="text-xl text-primary flex items-center gap-2">
+              <Lock className="w-5 h-5" /> เปลี่ยนรหัสผ่าน Admin
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>รหัสผ่านปัจจุบัน</Label>
+              <div className="relative">
+                <Input
+                  type={showPw ? "text" : "password"}
+                  value={pwForm.current}
+                  onChange={(e) => setPwForm({ ...pwForm, current: e.target.value })}
+                  className="bg-black/30 border-white/10 pr-10"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white"
+                >
+                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)</Label>
+              <Input
+                type={showPw ? "text" : "password"}
+                value={pwForm.next}
+                onChange={(e) => setPwForm({ ...pwForm, next: e.target.value })}
+                className="bg-black/30 border-white/10"
+                placeholder="••••••••"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="heroSlogan">สโลแกนหลัก</Label>
-              <Textarea 
-                id="heroSlogan" 
-                rows={2}
-                value={formData.heroSlogan} 
-                onChange={(e) => setFormData({...formData, heroSlogan: e.target.value})} 
-                className="bg-black/30 border-white/10 resize-none"
+              <Label>ยืนยันรหัสผ่านใหม่</Label>
+              <Input
+                type={showPw ? "text" : "password"}
+                value={pwForm.confirm}
+                onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+                className="bg-black/30 border-white/10"
+                placeholder="••••••••"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="heroSubSlogan">ข้อความรอง</Label>
-              <Textarea 
-                id="heroSubSlogan" 
-                rows={2}
-                value={formData.heroSubSlogan} 
-                onChange={(e) => setFormData({...formData, heroSubSlogan: e.target.value})} 
-                className="bg-black/30 border-white/10 resize-none"
-              />
-            </div>
+            <Button
+              onClick={handleChangePw}
+              disabled={changePw.isPending}
+              variant="outline"
+              className="w-full border-white/10 hover:border-primary/50 gap-2"
+            >
+              <Lock className="w-4 h-4" />
+              {changePw.isPending ? "กำลังบันทึก..." : "บันทึกรหัสผ่านใหม่"}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              หลังเปลี่ยนรหัสผ่านแล้ว ใช้รหัสใหม่ในการล็อกอินครั้งต่อไป
+            </p>
           </CardContent>
         </Card>
 
@@ -190,51 +288,24 @@ export default function AdminSettings() {
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="instagram" className="flex items-center gap-2">
-                <Instagram className="w-4 h-4 text-pink-500" /> ลิงก์ Instagram
-              </Label>
-              <Input 
-                id="instagram" 
-                value={formData.instagram} 
-                onChange={(e) => setFormData({...formData, instagram: e.target.value})} 
-                className="bg-black/30 border-white/10"
-                placeholder="https://instagram.com/..."
-              />
+              <Label className="flex items-center gap-2"><Instagram className="w-4 h-4 text-pink-500" /> ลิงก์ Instagram</Label>
+              <Input value={formData.instagram} onChange={(e) => setFormData({...formData, instagram: e.target.value})}
+                className="bg-black/30 border-white/10" placeholder="https://instagram.com/..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="facebook" className="flex items-center gap-2">
-                <Facebook className="w-4 h-4 text-blue-500" /> ลิงก์ Facebook
-              </Label>
-              <Input 
-                id="facebook" 
-                value={formData.facebook} 
-                onChange={(e) => setFormData({...formData, facebook: e.target.value})} 
-                className="bg-black/30 border-white/10"
-                placeholder="https://facebook.com/..."
-              />
+              <Label className="flex items-center gap-2"><Facebook className="w-4 h-4 text-blue-500" /> ลิงก์ Facebook</Label>
+              <Input value={formData.facebook} onChange={(e) => setFormData({...formData, facebook: e.target.value})}
+                className="bg-black/30 border-white/10" placeholder="https://facebook.com/..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-green-500" /> เบอร์โทรศัพท์
-              </Label>
-              <Input 
-                id="phone" 
-                value={formData.phone} 
-                onChange={(e) => setFormData({...formData, phone: e.target.value})} 
-                className="bg-black/30 border-white/10"
-              />
+              <Label className="flex items-center gap-2"><Phone className="w-4 h-4 text-green-500" /> เบอร์โทรศัพท์</Label>
+              <Input value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="bg-black/30 border-white/10" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-red-500" /> ที่อยู่
-              </Label>
-              <Textarea 
-                id="address" 
-                rows={2}
-                value={formData.address} 
-                onChange={(e) => setFormData({...formData, address: e.target.value})} 
-                className="bg-black/30 border-white/10 resize-none"
-              />
+              <Label className="flex items-center gap-2"><MapPin className="w-4 h-4 text-red-500" /> ที่อยู่</Label>
+              <Textarea rows={2} value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})}
+                className="bg-black/30 border-white/10 resize-none" />
             </div>
           </CardContent>
         </Card>

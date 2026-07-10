@@ -12,6 +12,8 @@ export interface Announcement {
   content: string;
   date: string;
   urgent: boolean;
+  /** @nullable */
+  imageUrl?: string | null;
   published: boolean;
   createdAt: string;
 }

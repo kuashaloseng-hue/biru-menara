@@ -11,6 +11,8 @@ export * from './adminUser';
 export * from './announcement';
 export * from './announcementInput';
 export * from './announcementUpdate';
+export * from './changePasswordResult';
+export * from './changePwBody';
 export * from './downloadFile';
 export * from './downloadFileInput';
 export * from './downloadFileUpdate';

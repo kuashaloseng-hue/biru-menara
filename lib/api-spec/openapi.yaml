@@ -84,6 +84,27 @@ paths:
         "401":
           description: Not authenticated
 
+  /admin/change-password:
+    post:
+      operationId: adminChangePassword
+      tags: [admin]
+      summary: Change admin password (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePwBody"
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordResult"
+        "401":
+          description: Wrong current password
+
   # ---- Announcements ----
   /announcements:
     get:
@@ -715,6 +736,8 @@ components:
           type: string
         urgent:
           type: boolean
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
         createdAt:
@@ -732,6 +755,8 @@ components:
           type: string
         urgent:
           type: boolean
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
       required: [title, content, date]
@@ -747,6 +772,8 @@ components:
           type: string
         urgent:
           type: boolean
+        imageUrl:
+          type: ["string", "null"]
         published:
           type: boolean
 
@@ -1007,6 +1034,8 @@ components:
           type: ["string", "null"]
         logoUrl:
           type: ["string", "null"]
+        navItems:
+          type: ["string", "null"]
       required: [id, instagram, facebook, address, heroTitle, heroSlogan, heroSubSlogan]
 
     GalleryImage:
@@ -1072,3 +1101,21 @@ components:
           type: ["string", "null"]
         logoUrl:
           type: ["string", "null"]
+        navItems:
+          type: ["string", "null"]
+
+    ChangePwBody:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+      required: [currentPassword, newPassword]
+
+    ChangePasswordResult:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]

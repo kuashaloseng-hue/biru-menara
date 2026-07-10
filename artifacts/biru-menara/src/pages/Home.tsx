@@ -5,73 +5,35 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Newspaper, CalendarDays, Download, Users, ChevronRight, Bell, ArrowRight } from "lucide-react";
+import { Newspaper, CalendarDays, Download, Users, ChevronRight, Bell, ArrowRight, ImageIcon } from "lucide-react";
 import { useEffect } from "react";
-import { useListAnnouncements, getListAnnouncementsQueryKey, useGetSettings, getGetSettingsQueryKey, useListGallery, getListGalleryQueryKey } from "@workspace/api-client-react";
-
-// Fallback images (used only if gallery DB is empty)
-import heroImg from "@assets/1783520581768_1783520763412.jpg";
-import cheerleadersImg from "@assets/generated_images/cheerleaders.jpg";
-import athletesImg from "@assets/generated_images/athletes.jpg";
-import celebrationImg from "@assets/generated_images/celebration.jpg";
-import teamSloganImg from "@assets/1783520586106_1783520776744.jpg";
+import {
+  useListAnnouncements, getListAnnouncementsQueryKey,
+  useGetSettings, getGetSettingsQueryKey,
+  useListGallery, getListGalleryQueryKey,
+  useListNews, getListNewsQueryKey,
+} from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
 
-const latestNewsFallback = [
-  {
-    id: 1,
-    title: "พิธีเปิดกีฬาสีประจำปี 2026",
-    excerpt: "บรรยากาศพิธีเปิดอย่างยิ่งใหญ่ สีฟ้ามาพร้อมกับขบวนพาเหรดตระการตา",
-    date: "14 ม.ค. 2026",
-    category: "ข่าวกิจกรรม",
-    image: celebrationImg,
-  },
-  {
-    id: 2,
-    title: "สีฟ้าคว้าแชมป์วอลเลย์บอลหญิง",
-    excerpt: "ทีมวอลเลย์บอลหญิงรุ่น ม.ปลาย โชว์ฟอร์มโหด เอาชนะคู่แข่ง 3-0 เซ็ต",
-    date: "15 ม.ค. 2026",
-    category: "ข่าวการแข่งขัน",
-    image: athletesImg,
-  },
-  {
-    id: 3,
-    title: "รวมภาพความประทับใจกองเชียร์",
-    excerpt: "พลังเสียงและสปิริตของกองเชียร์สีฟ้าที่ไม่เคยแผ่วตลอดทั้งวัน",
-    date: "16 ม.ค. 2026",
-    category: "ข่าวประชาสัมพันธ์",
-    image: cheerleadersImg,
-  },
-];
+// Only non-AI brand images kept as fallback for the hero background
+import heroImg from "@assets/1783520581768_1783520763412.jpg";
 
 export default function Home() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
 
-  // Live data from API
   const { data: announcements } = useListAnnouncements({ query: { queryKey: getListAnnouncementsQueryKey() } });
   const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
   const { data: galleryData } = useListGallery({ query: { queryKey: getListGalleryQueryKey() } });
+  const { data: newsData } = useListNews({ query: { queryKey: getListNewsQueryKey() } });
 
   const displayedAnnouncements = announcements?.filter((a) => a.published).slice(0, 4) ?? [];
   const heroBg = settings?.heroImageUrl || heroImg;
-
-  // Gallery: use live DB data if available, otherwise fallback to bundled assets
-  const fallbackGallery = [
-    { id: -1, imageUrl: heroImg as unknown as string, caption: "เปิดตัว BIRU MENARA", published: true, sortOrder: 1 },
-    { id: -2, imageUrl: teamSloganImg as unknown as string, caption: "อุดมการณ์สีฟ้า", published: true, sortOrder: 2 },
-    { id: -3, imageUrl: cheerleadersImg as unknown as string, caption: "ซ้อมกองเชียร์สุดพลัง", published: true, sortOrder: 3 },
-    { id: -4, imageUrl: athletesImg as unknown as string, caption: "นักกีฬาสีฟ้าพร้อมลุย", published: true, sortOrder: 4 },
-    { id: -5, imageUrl: celebrationImg as unknown as string, caption: "ฉลองชัยชนะ", published: true, sortOrder: 5 },
-  ];
-  const galleryImages = (galleryData && galleryData.length > 0)
-    ? galleryData.filter((g) => g.published)
-    : fallbackGallery;
+  const galleryImages = galleryData?.filter((g) => g.published) ?? [];
+  const latestNews = newsData?.filter((n) => n.published).slice(0, 3) ?? [];
 
   useEffect(() => {
     if (!emblaApi) return;
-    const autoplay = setInterval(() => {
-      emblaApi.scrollNext();
-    }, 4000);
+    const autoplay = setInterval(() => emblaApi.scrollNext(), 4000);
     return () => clearInterval(autoplay);
   }, [emblaApi]);
 
@@ -121,9 +83,7 @@ export default function Home() {
                 </Button>
               </Link>
               <Link href="/team">
-                <Button size="xl" variant="glass">
-                  ทำความรู้จักทีมเรา
-                </Button>
+                <Button size="xl" variant="glass">ทำความรู้จักทีมเรา</Button>
               </Link>
             </div>
           </motion.div>
@@ -139,17 +99,11 @@ export default function Home() {
             { title: "ดาวน์โหลด", icon: Download, href: "/downloads", color: "from-sky-500/20 to-sky-600/20", borderColor: "border-sky-500/30" },
             { title: "คณะทำงาน", icon: Users, href: "/team", color: "from-indigo-500/20 to-indigo-600/20", borderColor: "border-indigo-500/30" },
           ].map((item, i) => (
-            <motion.div
-              key={item.href}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-            >
+            <motion.div key={item.href} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }}>
               <Link href={item.href}>
                 <div className={cn(
                   "group h-32 rounded-2xl border backdrop-blur-xl bg-gradient-to-br flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer",
-                  item.color, item.borderColor,
-                  "hover:shadow-[0_0_30px_rgba(0,150,255,0.2)]"
+                  item.color, item.borderColor, "hover:shadow-[0_0_30px_rgba(0,150,255,0.2)]"
                 )}>
                   <item.icon className="h-8 w-8 text-white group-hover:text-accent transition-colors drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(0,150,255,0.8)]" />
                   <span className="font-semibold text-lg text-white group-hover:text-white/90">{item.title}</span>
@@ -166,59 +120,60 @@ export default function Home() {
           <Bell className="h-8 w-8 text-primary" />
           <h2 className="text-3xl font-bold text-white">ประกาศสำคัญ</h2>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {displayedAnnouncements.map((ann, i) => (
-            <motion.div
-              key={ann.id}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <Card className={cn(
-                "glass transition-all hover:bg-white/5",
-                ann.urgent ? "border-destructive/40 shadow-[0_0_15px_rgba(255,0,0,0.1)]" : ""
-              )}>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className={cn("font-bold text-lg", ann.urgent ? "text-destructive-foreground" : "text-white")}>
-                      {ann.title}
-                    </h3>
-                    {ann.urgent && <Badge variant="destructive" className="animate-pulse">ด่วน</Badge>}
-                  </div>
-                  <p className="text-gray-400 text-sm mb-4">{ann.content}</p>
-                  <p className="text-xs text-primary/60">{ann.date}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        {displayedAnnouncements.length === 0 ? (
+          <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
+            ยังไม่มีประกาศ — เพิ่มได้ใน Admin &gt; ประกาศ
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-6">
+            {displayedAnnouncements.map((ann, i) => (
+              <motion.div key={ann.id} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                <Card className={cn("glass transition-all hover:bg-white/5 overflow-hidden", ann.urgent ? "border-destructive/40 shadow-[0_0_15px_rgba(255,0,0,0.1)]" : "")}>
+                  {ann.imageUrl && (
+                    <div className="h-40 overflow-hidden">
+                      <img src={ann.imageUrl} alt={ann.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className={cn("font-bold text-lg", ann.urgent ? "text-destructive-foreground" : "text-white")}>{ann.title}</h3>
+                      {ann.urgent && <Badge variant="destructive" className="animate-pulse">ด่วน</Badge>}
+                    </div>
+                    <p className="text-gray-400 text-sm mb-4">{ann.content}</p>
+                    <p className="text-xs text-primary/60">{ann.date}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Gallery Slider */}
-      <section className="py-12 bg-black/40 border-y border-white/5 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">ภาพบรรยากาศ</h2>
-          <p className="text-muted-foreground">ภาพแห่งความประทับใจของชาวสีฟ้า</p>
-        </div>
-        
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
-            <div className="flex touch-pan-y">
-              {galleryImages.map((img, i) => (
-                <div className="flex-[0_0_100%] min-w-0 relative h-[400px] md:h-[600px] mx-2 rounded-2xl overflow-hidden" key={img.id ?? i}>
-                  <img src={img.imageUrl} alt={img.caption} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
-                    {img.caption && <h3 className="text-2xl font-bold text-white drop-shadow-lg">{img.caption}</h3>}
+      {/* Gallery Slider — only shown when DB has images */}
+      {galleryImages.length > 0 && (
+        <section className="py-12 bg-black/40 border-y border-white/5 overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
+            <h2 className="text-3xl font-bold text-white mb-2">ภาพบรรยากาศ</h2>
+            <p className="text-muted-foreground">ภาพแห่งความประทับใจของชาวสีฟ้า</p>
+          </div>
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+              <div className="flex touch-pan-y">
+                {galleryImages.map((img, i) => (
+                  <div className="flex-[0_0_100%] min-w-0 relative h-[400px] md:h-[600px] mx-2 rounded-2xl overflow-hidden" key={img.id ?? i}>
+                    <img src={img.imageUrl} alt={img.caption} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
+                      {img.caption && <h3 className="text-2xl font-bold text-white drop-shadow-lg">{img.caption}</h3>}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Latest News */}
+      {/* Latest News — live from API */}
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-8">
           <div>
@@ -232,48 +187,44 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {latestNewsFallback.map((news, i) => (
-            <motion.div
-              key={news.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
-                <div className="h-48 overflow-hidden relative">
-                  <img src={news.image} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute top-4 left-4">
-                    <Badge variant="default" className="bg-primary text-white border-none shadow-lg">
-                      {news.category}
-                    </Badge>
+        {latestNews.length === 0 ? (
+          <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
+            ยังไม่มีข่าวสาร — เพิ่มได้ใน Admin &gt; ข่าวสาร
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {latestNews.map((news, i) => (
+              <motion.div key={news.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
+                  <div className="h-48 overflow-hidden relative bg-gradient-to-br from-primary/20 to-accent/10">
+                    {news.imageUrl ? (
+                      <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-16 h-16 text-primary/30" />
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <Badge variant="default" className="bg-primary text-white border-none shadow-lg">{news.category}</Badge>
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-6 flex flex-col flex-1">
-                  <p className="text-xs text-muted-foreground mb-2">{news.date}</p>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">
-                    {news.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm mb-4 flex-1">
-                    {news.excerpt}
-                  </p>
-                  <Link href="/news">
-                    <span className="text-accent text-sm font-medium hover:underline inline-flex items-center">
-                      อ่านเพิ่มเติม <ArrowRight className="ml-1 h-3 w-3" />
-                    </span>
-                  </Link>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  <CardContent className="p-6 flex flex-col flex-1">
+                    <p className="text-xs text-muted-foreground mb-2">{news.date}</p>
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">{news.title}</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-1">{news.excerpt}</p>
+                    <Link href="/news">
+                      <span className="text-accent text-sm font-medium hover:underline inline-flex items-center">
+                        อ่านเพิ่มเติม <ArrowRight className="ml-1 h-3 w-3" />
+                      </span>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
         <div className="mt-8 text-center sm:hidden">
-          <Link href="/news">
-            <Button variant="outline" className="w-full">
-              ดูข่าวทั้งหมด
-            </Button>
-          </Link>
+          <Link href="/news"><Button variant="outline" className="w-full">ดูข่าวทั้งหมด</Button></Link>
         </div>
       </section>
     </Layout>
