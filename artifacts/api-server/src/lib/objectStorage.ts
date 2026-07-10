@@ -12,23 +12,35 @@ import {
 
 const REPLIT_SIDECAR_ENDPOINT = 'http://127.0.0.1:1106';
 
-export const objectStorageClient = new Storage({
-  credentials: {
-    audience: 'replit',
-    subject_token_type: 'access_token',
-    token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
-    type: 'external_account',
-    credential_source: {
-      url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
-      format: {
-        type: 'json',
-        subject_token_field_name: 'access_token',
+// Lazy singleton — do NOT initialize at module load time.
+// @google-cloud/storage's Storage constructor (with external_account credentials
+// and projectId auto-detection) can issue network calls against the GCP metadata
+// server on cold-start Cloud Run instances, which blocks the event loop long
+// enough to fail the deployment startup probe. Deferring to first use keeps
+// server startup fast and the health check responsive.
+let _objectStorageClient: Storage | null = null;
+export function getObjectStorageClient(): Storage {
+  if (!_objectStorageClient) {
+    _objectStorageClient = new Storage({
+      credentials: {
+        audience: 'replit',
+        subject_token_type: 'access_token',
+        token_url: `${REPLIT_SIDECAR_ENDPOINT}/token`,
+        type: 'external_account',
+        credential_source: {
+          url: `${REPLIT_SIDECAR_ENDPOINT}/credential`,
+          format: {
+            type: 'json',
+            subject_token_field_name: 'access_token',
+          },
+        },
+        universe_domain: 'googleapis.com',
       },
-    },
-    universe_domain: 'googleapis.com',
-  },
-  projectId: '',
-});
+      projectId: '',
+    });
+  }
+  return _objectStorageClient;
+}
 
 export class ObjectNotFoundError extends Error {
   constructor() {
@@ -76,7 +88,7 @@ export class ObjectStorageService {
       const fullPath = `${searchPath}/${filePath}`;
 
       const { bucketName, objectName } = parseObjectPath(fullPath);
-      const bucket = objectStorageClient.bucket(bucketName);
+      const bucket = getObjectStorageClient().bucket(bucketName);
       const file = bucket.file(objectName);
 
       const [exists] = await file.exists();
@@ -150,7 +162,7 @@ export class ObjectStorageService {
     }
     const objectEntityPath = `${entityDir}${entityId}`;
     const { bucketName, objectName } = parseObjectPath(objectEntityPath);
-    const bucket = objectStorageClient.bucket(bucketName);
+    const bucket = getObjectStorageClient().bucket(bucketName);
     const objectFile = bucket.file(objectName);
     const [exists] = await objectFile.exists();
     if (!exists) {

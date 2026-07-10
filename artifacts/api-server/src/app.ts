@@ -76,4 +76,12 @@ app.use("/api", (_req, res, next) => {
 
 app.use("/api", router);
 
+// Health check fallbacks — the startup probe path in artifact.toml is
+// /api/healthz, but Replit's pid1 health checker also probes the service base
+// path (/api) before the server is ready, and some proxy configurations strip
+// the prefix. All three variants return 200 so the probe succeeds regardless.
+app.get("/healthz", (_req, res) => res.json({ status: "ok" }));
+app.get("/api", (_req, res) => res.json({ status: "ok" }));
+app.get("/api/", (_req, res) => res.json({ status: "ok" }));
+
 export default app;

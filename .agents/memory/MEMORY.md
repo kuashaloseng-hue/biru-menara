@@ -1,1 +1,2 @@
 - [BIRU MENARA admin system](biru-menara-admin.md) — session auth, CSRF, DB schema, mapRow pattern for Date→string conversion
+- [Deployment debugging](deployment-debug.md) — autoscale health check failures: lazy Storage init, /api fallback routes, ESM handler ordering, 0.0.0.0 binding
