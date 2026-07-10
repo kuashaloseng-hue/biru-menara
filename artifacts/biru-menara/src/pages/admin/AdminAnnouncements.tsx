@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import {
   useListAnnouncements,
@@ -9,7 +9,7 @@ import {
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
@@ -38,12 +38,25 @@ function SortableAnnRow({
   ann, onEdit, onDelete,
 }: { ann: Ann; onEdit: (a: Ann) => void; onDelete: (id: number) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: ann.id });
-  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    willChange: isDragging ? "transform" : undefined,
+    position: "relative",
+    zIndex: isDragging ? 9999 : undefined,
+    background: isDragging ? "rgba(0,150,255,0.08)" : undefined,
+  };
 
   return (
     <TableRow ref={setNodeRef} style={style} className="border-b border-white/5 hover:bg-white/5">
-      <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
-        <GripVertical className="w-4 h-4 text-gray-600 hover:text-gray-400" />
+      <TableCell
+        className="w-8 select-none"
+        style={{ touchAction: "none", cursor: "grab" }}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="w-5 h-5 text-gray-500 hover:text-gray-300 transition-colors" />
       </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
@@ -86,6 +99,12 @@ export default function AdminAnnouncements() {
   const queryClient = useQueryClient();
   const { data: announcements, isLoading } = useListAnnouncements({ query: { queryKey: getListAnnouncementsQueryKey() } });
 
+  // Local copy for optimistic drag reorder
+  const [localItems, setLocalItems] = useState<Ann[]>([]);
+  useEffect(() => {
+    if (announcements) setLocalItems(announcements as Ann[]);
+  }, [announcements]);
+
   const createAnn = useCreateAnnouncement();
   const updateAnn = useUpdateAnnouncement();
   const deleteAnn = useDeleteAnnouncement();
@@ -96,7 +115,10 @@ export default function AdminAnnouncements() {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+  );
   const invalidate = () => queryClient.invalidateQueries({ queryKey: getListAnnouncementsQueryKey() });
 
   const resetForm = () => { setFormData({ ...emptyForm, date: format(new Date(), "dd MMM yyyy") }); setEditingId(null); };
@@ -135,23 +157,25 @@ export default function AdminAnnouncements() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id || !announcements) return;
-    const items = [...announcements] as Ann[];
-    const oldIndex = items.findIndex((i) => i.id === active.id);
-    const newIndex = items.findIndex((i) => i.id === over.id);
-    const reordered = arrayMove(items, oldIndex, newIndex);
+    if (!over || active.id === over.id) return;
+    const oldIndex = localItems.findIndex((i) => i.id === active.id);
+    const newIndex = localItems.findIndex((i) => i.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistically reorder locally first so UI snaps immediately
+    const reordered = arrayMove(localItems, oldIndex, newIndex);
+    setLocalItems(reordered);
+
     try {
       await Promise.all(
         reordered.map((item, idx) =>
-          item.sortOrder !== idx
-            ? updateAnn.mutateAsync({ id: item.id, data: { sortOrder: idx } })
-            : Promise.resolve()
+          updateAnn.mutateAsync({ id: item.id, data: { sortOrder: idx } })
         )
       );
+      toast.success("เรียงลำดับสำเร็จ");
     } catch {
       toast.error("เรียงลำดับไม่สำเร็จ กรุณาลองใหม่");
-    } finally {
-      invalidate();
+      invalidate(); // Roll back to server state on error
     }
   };
 
@@ -181,12 +205,12 @@ export default function AdminAnnouncements() {
           <TableBody>
             {isLoading ? (
               <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">กำลังโหลด...</TableCell></TableRow>
-            ) : !announcements?.length ? (
+            ) : !localItems.length ? (
               <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">ยังไม่มีประกาศ</TableCell></TableRow>
             ) : (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={(announcements as Ann[]).map((a) => a.id)} strategy={verticalListSortingStrategy}>
-                  {(announcements as Ann[]).map((ann) => (
+                <SortableContext items={localItems.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+                  {localItems.map((ann) => (
                     <SortableAnnRow key={ann.id} ann={ann} onEdit={handleOpenEdit} onDelete={confirmDelete} />
                   ))}
                 </SortableContext>
