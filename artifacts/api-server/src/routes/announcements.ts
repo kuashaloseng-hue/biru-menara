@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 import { db, announcementsTable } from "@workspace/db";
 import {
   CreateAnnouncementBody,
@@ -22,7 +22,7 @@ router.get("/announcements", async (_req, res): Promise<void> => {
   const rows = await db
     .select()
     .from(announcementsTable)
-    .orderBy(desc(announcementsTable.createdAt));
+    .orderBy(asc(announcementsTable.sortOrder), desc(announcementsTable.createdAt));
   res.json(ListAnnouncementsResponse.parse(mapRows(rows)));
 });
 
@@ -35,6 +35,7 @@ router.post("/announcements", requireAdmin, async (req, res): Promise<void> => {
   const data = {
     ...parsed.data,
     urgent: parsed.data.urgent ?? false,
+    sortOrder: parsed.data.sortOrder ?? 0,
     published: parsed.data.published ?? true,
   };
   const [row] = await db.insert(announcementsTable).values(data).returning();

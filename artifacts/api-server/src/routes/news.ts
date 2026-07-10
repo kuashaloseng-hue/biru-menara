@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { IRouter } from "express";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, asc } from "drizzle-orm";
 import { db, newsTable } from "@workspace/db";
 import {
   CreateNewsPostBody,
@@ -19,14 +19,14 @@ import { mapRow, mapRows } from "../lib/mapRow";
 const router: IRouter = Router();
 
 router.get("/news", async (_req, res): Promise<void> => {
-  const rows = await db.select().from(newsTable).orderBy(desc(newsTable.createdAt));
+  const rows = await db.select().from(newsTable).orderBy(asc(newsTable.sortOrder), desc(newsTable.createdAt));
   res.json(ListNewsResponse.parse(mapRows(rows)));
 });
 
 router.post("/news", requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateNewsPostBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
-  const data = { ...parsed.data, published: parsed.data.published ?? true };
+  const data = { ...parsed.data, sortOrder: parsed.data.sortOrder ?? 0, published: parsed.data.published ?? true };
   const [row] = await db.insert(newsTable).values(data).returning();
   res.status(201).json(CreateNewsPostResponse.parse(mapRow(row)));
 });

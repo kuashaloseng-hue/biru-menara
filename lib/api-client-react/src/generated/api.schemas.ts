@@ -25,6 +25,7 @@ export interface Announcement {
   urgent: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder: number;
   published: boolean;
   createdAt: string;
 }
@@ -36,6 +37,7 @@ export interface AnnouncementInput {
   urgent?: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder?: number;
   published?: boolean;
 }
 
@@ -46,6 +48,7 @@ export interface AnnouncementUpdate {
   urgent?: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder?: number;
   published?: boolean;
 }
 
@@ -58,6 +61,7 @@ export interface NewsPost {
   category: string;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder: number;
   published: boolean;
   createdAt: string;
 }
@@ -70,6 +74,7 @@ export interface NewsPostInput {
   category: string;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder?: number;
   published?: boolean;
 }
 
@@ -81,6 +86,7 @@ export interface NewsPostUpdate {
   category?: string;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder?: number;
   published?: boolean;
 }
 
@@ -198,6 +204,8 @@ export interface SiteSettings {
   /** @nullable */
   logoUrl?: string | null;
   /** @nullable */
+  teamRosterImageUrl?: string | null;
+  /** @nullable */
   navItems?: string | null;
 }
 
@@ -238,7 +246,24 @@ export interface SiteSettingsUpdate {
   /** @nullable */
   logoUrl?: string | null;
   /** @nullable */
+  teamRosterImageUrl?: string | null;
+  /** @nullable */
   navItems?: string | null;
+}
+
+export interface UploadUrlRequest {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: UploadUrlRequest;
 }
 
 export interface ChangePwBody {

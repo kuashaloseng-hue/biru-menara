@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, UserCircle } from "lucide-react";
+import { AdminImageUploader } from "@/components/admin/AdminImageUploader";
 import { toast } from "sonner";
 
 const MEMBER_TYPES = [
@@ -226,15 +227,11 @@ export default function AdminTeam() {
                 <Input type="number" value={formData.sortOrder} onChange={(e) => setFormData({...formData, sortOrder: Number(e.target.value)})} className="bg-black/30 border-white/10" />
               </div>
             </div>
-            <div className="grid gap-2">
-              <Label>ลิงก์รูปภาพ (URL)</Label>
-              <Input value={formData.imageUrl} onChange={(e) => setFormData({...formData, imageUrl: e.target.value})} className="bg-black/30 border-white/10" placeholder="https://..." />
-              {formData.imageUrl && (
-                <div className="mt-2 text-center">
-                  <img src={formData.imageUrl} alt="Preview" className="h-20 w-20 object-cover rounded-full inline-block border border-white/20" />
-                </div>
-              )}
-            </div>
+            <AdminImageUploader
+              label="รูปโปรไฟล์ (ไม่บังคับ)"
+              value={formData.imageUrl}
+              onChange={(url) => setFormData({...formData, imageUrl: url})}
+            />
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIsModalOpen(false)}>ยกเลิก</Button>

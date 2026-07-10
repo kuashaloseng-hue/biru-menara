@@ -31,10 +31,30 @@ Admin creates members as `memberType: "main"` (leaders) or `"sub"` (staff). Publ
 ## Gallery drag-reorder
 Uses @dnd-kit/core + @dnd-kit/sortable. On drag-end: `Promise.all` for all changed sortOrders → single invalidate after all complete. Falls back to empty (no AI images) when DB gallery is empty.
 
+## Object Storage
+- Bucket provisioned via `setupObjectStorage()` in CodeExecution sandbox
+- Server files: `artifacts/api-server/src/lib/objectStorage.ts`, `objectAcl.ts`, `routes/storage.ts`
+- Client: `lib/object-storage-web` (Uppy v5, `useUpload` hook) — pnpm override `react: 19.1.0` required
+- `lib/object-storage-web/tsconfig.json` must have `"composite": true`
+- Upload URL auth: `req.session?.isAdmin` (not Replit Auth)
+- `GET /storage/objects/*` is intentionally public — all uploads are public-facing images
+- Serving URL pattern: `/api/storage${objectPath}` (objectPath = `/objects/uploads/uuid`)
+- Shared upload component: `artifacts/biru-menara/src/components/admin/AdminImageUploader.tsx`
+
+## Drag-to-reorder (sortOrder)
+- Gallery, News, Announcements all have `sortOrder` field and drag-to-reorder
+- Pattern: `Promise.all(mutateAsync...)` wrapped in `try/catch` + `finally { invalidate() }`
+- News and Announcements API routes order by `asc(sortOrder), desc(createdAt)`
+
+## Settings fields
+- `teamRosterImageUrl` — configurable roster image shown on Team page (replaces hardcoded import)
+- All image fields in AdminSettings use `AdminImageUploader` component
+
 ## Codegen
 - `pnpm --filter @workspace/api-spec run codegen` regenerates both `lib/api-zod` and `lib/api-client-react`
 - `lib/api-zod/src/index.ts` must not have duplicate export lines (orval + old handwritten)
 - `lib/api-client-react/src/index.ts` same — deduplicate if it gains duplicate lines
+- OpenAPI `format: uri` causes orval to emit `zod.url()` (Zod v4 syntax) — avoid `format: uri` with Zod v3
 
 ## Cache
 - API server: `Cache-Control: no-store` on all `/api/*` (in `app.ts`)

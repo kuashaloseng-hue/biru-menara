@@ -21,5 +21,7 @@ export interface SiteSettings {
   /** @nullable */
   logoUrl?: string | null;
   /** @nullable */
+  teamRosterImageUrl?: string | null;
+  /** @nullable */
   navItems?: string | null;
 }

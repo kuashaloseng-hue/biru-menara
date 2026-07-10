@@ -31,3 +31,5 @@ export * from './siteSettingsUpdate';
 export * from './teamMember';
 export * from './teamMemberInput';
 export * from './teamMemberUpdate';
+export * from './uploadUrlRequest';
+export * from './uploadUrlResponse';

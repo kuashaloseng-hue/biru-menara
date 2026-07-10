@@ -24,6 +24,8 @@ tags:
     description: Downloads management
   - name: settings
     description: Site settings
+  - name: storage
+    description: Object storage upload and serving endpoints.
 
 paths:
   /healthz:
@@ -700,6 +702,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/SiteSettings"
 
+  /storage/uploads/request-url:
+    post:
+      tags: [storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned URL for file upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned upload URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+  /storage/objects/{objectPath}:
+    get:
+      tags: [storage]
+      operationId: getStorageObject
+      summary: Serve an uploaded object
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Object content streamed.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+
 components:
   schemas:
     HealthStatus:
@@ -738,11 +778,13 @@ components:
           type: boolean
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
         createdAt:
           type: string
-      required: [id, title, content, date, urgent, published, createdAt]
+      required: [id, title, content, date, urgent, sortOrder, published, createdAt]
 
     AnnouncementInput:
       type: object
@@ -757,6 +799,8 @@ components:
           type: boolean
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
       required: [title, content, date]
@@ -774,6 +818,8 @@ components:
           type: boolean
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
 
@@ -794,11 +840,13 @@ components:
           type: string
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
         createdAt:
           type: string
-      required: [id, title, excerpt, content, date, category, published, createdAt]
+      required: [id, title, excerpt, content, date, category, sortOrder, published, createdAt]
 
     NewsPostInput:
       type: object
@@ -815,6 +863,8 @@ components:
           type: string
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
       required: [title, excerpt, content, date, category]
@@ -834,6 +884,8 @@ components:
           type: string
         imageUrl:
           type: ["string", "null"]
+        sortOrder:
+          type: integer
         published:
           type: boolean
 
@@ -1034,6 +1086,8 @@ components:
           type: ["string", "null"]
         logoUrl:
           type: ["string", "null"]
+        teamRosterImageUrl:
+          type: ["string", "null"]
         navItems:
           type: ["string", "null"]
       required: [id, instagram, facebook, address, heroTitle, heroSlogan, heroSubSlogan]
@@ -1101,8 +1155,34 @@ components:
           type: ["string", "null"]
         logoUrl:
           type: ["string", "null"]
+        teamRosterImageUrl:
+          type: ["string", "null"]
         navItems:
           type: ["string", "null"]
+
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/UploadUrlRequest'
 
     ChangePwBody:
       type: object

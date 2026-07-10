@@ -1,6 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Clock, Trophy, Loader2 } from "lucide-react";
+import { CalendarDays, MapPin, Clock, Trophy, Loader2, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useListSchedules, getListSchedulesQueryKey } from "@workspace/api-client-react";
@@ -41,7 +42,12 @@ export default function Schedule() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 print:py-4">
+        <div className="flex justify-end mb-6 print:hidden">
+          <Button variant="outline" onClick={() => window.print()} className="gap-2 border-white/10 hover:border-primary/50">
+            <Printer className="w-4 h-4" /> พิมพ์ตาราง
+          </Button>
+        </div>
         {isLoading ? (
           <div className="flex items-center justify-center py-32">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />

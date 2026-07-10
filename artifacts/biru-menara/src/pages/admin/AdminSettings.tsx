@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Instagram, Facebook, MapPin, Phone, Save, Image, Type, Lock, Eye, EyeOff, Menu } from "lucide-react";
+import { AdminImageUploader } from "@/components/admin/AdminImageUploader";
 
 // ─── Default nav visibility ───────────────────────────────────────────────────
 const NAV_KEYS = [
@@ -47,6 +48,7 @@ export default function AdminSettings() {
     heroSubSlogan: "",
     heroImageUrl: "",
     logoUrl: "",
+    teamRosterImageUrl: "",
   });
   const [navItems, setNavItems] = useState<Record<string, boolean>>(parseNavItems(null));
 
@@ -62,6 +64,7 @@ export default function AdminSettings() {
         heroSubSlogan: settings.heroSubSlogan || "",
         heroImageUrl: settings.heroImageUrl || "",
         logoUrl:      settings.logoUrl || "",
+        teamRosterImageUrl: settings.teamRosterImageUrl || "",
       });
       setNavItems(parseNavItems(settings.navItems));
     }
@@ -72,6 +75,7 @@ export default function AdminSettings() {
       ...formData,
       heroImageUrl: formData.heroImageUrl || null,
       logoUrl:      formData.logoUrl || null,
+      teamRosterImageUrl: formData.teamRosterImageUrl || null,
       phone:        formData.phone || null,
       navItems:     JSON.stringify(navItems),
     };
@@ -130,44 +134,21 @@ export default function AdminSettings() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Image className="w-4 h-4 text-blue-400" /> URL ภาพพื้นหลัง (Hero)
-              </Label>
-              <Input
-                value={formData.heroImageUrl}
-                onChange={(e) => setFormData({...formData, heroImageUrl: e.target.value})}
-                className="bg-black/30 border-white/10"
-                placeholder="https://... (วางลิงก์รูปภาพ)"
-              />
-              {formData.heroImageUrl && (
-                <div className="mt-2 rounded-lg overflow-hidden border border-white/10 h-32">
-                  <img src={formData.heroImageUrl} alt="Hero preview" className="w-full h-full object-cover opacity-70"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">ใส่ URL รูปภาพ หรือวางลิงก์จาก Google Drive / Imgur ฯลฯ</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Type className="w-4 h-4 text-cyan-400" /> URL โลโก้ (ไม่บังคับ)
-              </Label>
-              <Input
-                value={formData.logoUrl}
-                onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
-                className="bg-black/30 border-white/10"
-                placeholder="https://... (วางลิงก์รูปโลโก้)"
-              />
-              {formData.logoUrl && (
-                <div className="mt-2 p-3 rounded-lg bg-black/40 border border-white/10 flex items-center gap-3">
-                  <img src={formData.logoUrl} alt="Logo preview" className="h-10 w-auto object-contain"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  <span className="text-xs text-muted-foreground">ตัวอย่างโลโก้</span>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">ถ้าว่างเปล่าจะใช้ไอคอน ⚡ BIRU MENARA ตามเดิม</p>
-            </div>
+            <AdminImageUploader
+              label="ภาพพื้นหลัง Hero"
+              value={formData.heroImageUrl}
+              onChange={(url) => setFormData({...formData, heroImageUrl: url})}
+            />
+            <AdminImageUploader
+              label="โลโก้เว็บไซต์ (ไม่บังคับ)"
+              value={formData.logoUrl}
+              onChange={(url) => setFormData({...formData, logoUrl: url})}
+            />
+            <AdminImageUploader
+              label="รูปรายชื่อนักกีฬาและคณะทำงาน (หน้าทีม)"
+              value={formData.teamRosterImageUrl}
+              onChange={(url) => setFormData({...formData, teamRosterImageUrl: url})}
+            />
           </CardContent>
         </Card>
 

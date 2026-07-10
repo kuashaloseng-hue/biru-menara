@@ -3,12 +3,11 @@ import { motion } from "framer-motion";
 import { Users, ShieldCheck, Target, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useListTeamMembers, getListTeamMembersQueryKey } from "@workspace/api-client-react";
-import rosterImg from "@assets/1783520713566_1783520781749.jpg";
-import placeholderPortrait from "@assets/generated_images/placeholder_portrait.jpg";
+import { useListTeamMembers, getListTeamMembersQueryKey, useGetSettings, getGetSettingsQueryKey } from "@workspace/api-client-react";
 
 export default function Team() {
   const { data: allMembers, isLoading } = useListTeamMembers({ query: { queryKey: getListTeamMembersQueryKey() } });
+  const { data: settings } = useGetSettings({ query: { queryKey: getGetSettingsQueryKey() } });
   const members = allMembers?.filter((m) => m.published !== false) ?? [];
 
   const leaders = members.filter((m) => m.memberType === "main");
@@ -56,12 +55,13 @@ export default function Team() {
                       <div className="relative rounded-3xl p-1 bg-gradient-to-br from-blue-600 to-indigo-600">
                         <div className="bg-card rounded-[22px] p-8 h-full flex flex-col items-center text-center">
                           <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-background shadow-2xl mb-6 relative">
-                            <img
-                              src={leader.imageUrl || placeholderPortrait}
-                              alt={leader.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => { (e.target as HTMLImageElement).src = placeholderPortrait; }}
-                            />
+                            {leader.imageUrl ? (
+                              <img src={leader.imageUrl} alt={leader.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center">
+                                <Users className="h-10 w-10 text-blue-200" />
+                              </div>
+                            )}
                           </div>
                           <Badge className="bg-white/10 text-white border-white/20 mb-3">{leader.role}</Badge>
                           <h3 className="text-2xl font-bold text-white">{leader.name}</h3>
@@ -95,7 +95,6 @@ export default function Team() {
                                 src={member.imageUrl}
                                 alt={member.name}
                                 className="w-full h-full object-cover"
-                                onError={(e) => { (e.target as HTMLImageElement).src = placeholderPortrait; }}
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
@@ -123,16 +122,18 @@ export default function Team() {
               </div>
             )}
 
-            <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6 z-10">
-                <h3 className="text-2xl font-bold text-white">รายชื่อนักกีฬาและคณะทำงาน</h3>
+            {settings?.teamRosterImageUrl && (
+              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6 z-10">
+                  <h3 className="text-2xl font-bold text-white">รายชื่อนักกีฬาและคณะทำงาน</h3>
+                </div>
+                <img
+                  src={settings.teamRosterImageUrl}
+                  alt="รายชื่อนักกีฬาและคณะทำงาน"
+                  className="w-full h-auto object-contain max-h-[800px] opacity-90 hover:opacity-100 transition-opacity"
+                />
               </div>
-              <img
-                src={rosterImg}
-                alt="รายชื่อนักกีฬาและคณะทำงาน"
-                className="w-full h-auto object-contain max-h-[800px] opacity-90 hover:opacity-100 transition-opacity"
-              />
-            </div>
+            )}
           </>
         )}
       </div>

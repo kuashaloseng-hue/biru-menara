@@ -65,6 +65,7 @@ export const ListAnnouncementsResponseItem = zod.object({
   "date": zod.string(),
   "urgent": zod.boolean(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -80,6 +81,7 @@ export const CreateAnnouncementBody = zod.object({
   "date": zod.string(),
   "urgent": zod.boolean().optional(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
 })
 
@@ -90,6 +92,7 @@ export const CreateAnnouncementResponse = zod.object({
   "date": zod.string(),
   "urgent": zod.boolean(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -109,6 +112,7 @@ export const GetAnnouncementResponse = zod.object({
   "date": zod.string(),
   "urgent": zod.boolean(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -127,6 +131,7 @@ export const UpdateAnnouncementBody = zod.object({
   "date": zod.string().optional(),
   "urgent": zod.boolean().optional(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
 })
 
@@ -137,6 +142,7 @@ export const UpdateAnnouncementResponse = zod.object({
   "date": zod.string(),
   "urgent": zod.boolean(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -163,6 +169,7 @@ export const ListNewsResponseItem = zod.object({
   "date": zod.string(),
   "category": zod.string(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -179,6 +186,7 @@ export const CreateNewsPostBody = zod.object({
   "date": zod.string(),
   "category": zod.string(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
 })
 
@@ -190,6 +198,7 @@ export const CreateNewsPostResponse = zod.object({
   "date": zod.string(),
   "category": zod.string(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -210,6 +219,7 @@ export const GetNewsPostResponse = zod.object({
   "date": zod.string(),
   "category": zod.string(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -229,6 +239,7 @@ export const UpdateNewsPostBody = zod.object({
   "date": zod.string().optional(),
   "category": zod.string().optional(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number().optional(),
   "published": zod.boolean().optional()
 })
 
@@ -240,6 +251,7 @@ export const UpdateNewsPostResponse = zod.object({
   "date": zod.string(),
   "category": zod.string(),
   "imageUrl": zod.string().nullish(),
+  "sortOrder": zod.number(),
   "published": zod.boolean(),
   "createdAt": zod.string()
 })
@@ -654,6 +666,7 @@ export const GetSettingsResponse = zod.object({
   "heroSubSlogan": zod.string(),
   "heroImageUrl": zod.string().nullish(),
   "logoUrl": zod.string().nullish(),
+  "teamRosterImageUrl": zod.string().nullish(),
   "navItems": zod.string().nullish()
 })
 
@@ -671,6 +684,7 @@ export const UpdateSettingsBody = zod.object({
   "heroSubSlogan": zod.string().optional(),
   "heroImageUrl": zod.string().nullish(),
   "logoUrl": zod.string().nullish(),
+  "teamRosterImageUrl": zod.string().nullish(),
   "navItems": zod.string().nullish()
 })
 
@@ -685,7 +699,48 @@ export const UpdateSettingsResponse = zod.object({
   "heroSubSlogan": zod.string(),
   "heroImageUrl": zod.string().nullish(),
   "logoUrl": zod.string().nullish(),
+  "teamRosterImageUrl": zod.string().nullish(),
   "navItems": zod.string().nullish()
 })
+
+
+/**
+ * @summary Request a presigned URL for file upload
+ */
+
+
+
+
+
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1),
+  "contentType": zod.string().min(1)
+})
+
+
+
+
+
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string(),
+  "objectPath": zod.string(),
+  "metadata": zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().min(1),
+  "contentType": zod.string().min(1)
+}).optional()
+})
+
+
+/**
+ * @summary Serve an uploaded object
+ */
+export const GetStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})
+
+export const GetStorageObjectResponse = zod.unknown()
 
 

@@ -14,6 +14,7 @@ export interface Announcement {
   urgent: boolean;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder: number;
   published: boolean;
   createdAt: string;
 }

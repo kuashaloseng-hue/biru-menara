@@ -14,5 +14,6 @@ export interface NewsPostInput {
   category: string;
   /** @nullable */
   imageUrl?: string | null;
+  sortOrder?: number;
   published?: boolean;
 }
