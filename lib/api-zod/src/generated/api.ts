@@ -249,7 +249,8 @@ export const ListSchedulesResponseItem = zod.object({
   "time": zod.string(),
   "status": zod.string(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 export const ListSchedulesResponse = zod.array(ListSchedulesResponseItem)
 
@@ -266,7 +267,8 @@ export const CreateScheduleBody = zod.object({
   "time": zod.string(),
   "status": zod.string(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number().optional()
+  "sortOrder": zod.number().optional(),
+  "published": zod.boolean().optional()
 })
 
 export const CreateScheduleResponse = zod.object({
@@ -279,7 +281,8 @@ export const CreateScheduleResponse = zod.object({
   "time": zod.string(),
   "status": zod.string(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 
@@ -300,7 +303,8 @@ export const GetScheduleResponse = zod.object({
   "time": zod.string(),
   "status": zod.string(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 
@@ -333,7 +337,8 @@ export const UpdateScheduleResponse = zod.object({
   "time": zod.string(),
   "status": zod.string(),
   "result": zod.string().nullish(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 
@@ -356,7 +361,8 @@ export const ListTeamMembersResponseItem = zod.object({
   "name": zod.string(),
   "memberType": zod.string(),
   "sortOrder": zod.number(),
-  "imageUrl": zod.string().nullish()
+  "imageUrl": zod.string().nullish(),
+  "published": zod.boolean()
 })
 export const ListTeamMembersResponse = zod.array(ListTeamMembersResponseItem)
 
@@ -369,7 +375,8 @@ export const CreateTeamMemberBody = zod.object({
   "name": zod.string(),
   "memberType": zod.string(),
   "sortOrder": zod.number().optional(),
-  "imageUrl": zod.string().nullish()
+  "imageUrl": zod.string().nullish(),
+  "published": zod.boolean().optional()
 })
 
 export const CreateTeamMemberResponse = zod.object({
@@ -378,7 +385,8 @@ export const CreateTeamMemberResponse = zod.object({
   "name": zod.string(),
   "memberType": zod.string(),
   "sortOrder": zod.number(),
-  "imageUrl": zod.string().nullish()
+  "imageUrl": zod.string().nullish(),
+  "published": zod.boolean()
 })
 
 
@@ -395,7 +403,8 @@ export const GetTeamMemberResponse = zod.object({
   "name": zod.string(),
   "memberType": zod.string(),
   "sortOrder": zod.number(),
-  "imageUrl": zod.string().nullish()
+  "imageUrl": zod.string().nullish(),
+  "published": zod.boolean()
 })
 
 
@@ -420,7 +429,8 @@ export const UpdateTeamMemberResponse = zod.object({
   "name": zod.string(),
   "memberType": zod.string(),
   "sortOrder": zod.number(),
-  "imageUrl": zod.string().nullish()
+  "imageUrl": zod.string().nullish(),
+  "published": zod.boolean()
 })
 
 
@@ -443,7 +453,8 @@ export const ListDownloadsResponseItem = zod.object({
   "category": zod.string(),
   "size": zod.string(),
   "fileUrl": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 export const ListDownloadsResponse = zod.array(ListDownloadsResponseItem)
 
@@ -456,7 +467,8 @@ export const CreateDownloadBody = zod.object({
   "category": zod.string(),
   "size": zod.string(),
   "fileUrl": zod.string(),
-  "sortOrder": zod.number().optional()
+  "sortOrder": zod.number().optional(),
+  "published": zod.boolean().optional()
 })
 
 export const CreateDownloadResponse = zod.object({
@@ -465,7 +477,8 @@ export const CreateDownloadResponse = zod.object({
   "category": zod.string(),
   "size": zod.string(),
   "fileUrl": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 
@@ -482,7 +495,8 @@ export const GetDownloadResponse = zod.object({
   "category": zod.string(),
   "size": zod.string(),
   "fileUrl": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 
@@ -507,7 +521,8 @@ export const UpdateDownloadResponse = zod.object({
   "category": zod.string(),
   "size": zod.string(),
   "fileUrl": zod.string(),
-  "sortOrder": zod.number()
+  "sortOrder": zod.number(),
+  "published": zod.boolean()
 })
 
 

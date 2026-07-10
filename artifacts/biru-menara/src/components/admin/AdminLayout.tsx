@@ -12,7 +12,8 @@ import {
   LogOut,
   Menu,
   X,
-  Images
+  Images,
+  MonitorPlay
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -29,6 +30,7 @@ const navItems = [
   { href: "/admin/gallery", label: "แกลเลอรี่", icon: Images },
   { href: "/admin/downloads", label: "ไฟล์ดาวน์โหลด", icon: Download },
   { href: "/admin/settings", label: "ตั้งค่าเว็บไซต์", icon: Settings },
+  { href: "/admin/preview", label: "ดูตัวอย่างเว็บ", icon: MonitorPlay },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

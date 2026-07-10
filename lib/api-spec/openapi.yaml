@@ -833,7 +833,9 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
-      required: [id, sport, gender, level, venue, date, time, status, sortOrder]
+        published:
+          type: boolean
+      required: [id, sport, gender, level, venue, date, time, status, sortOrder, published]
 
     ScheduleMatchInput:
       type: object
@@ -856,6 +858,8 @@ components:
           type: ["string", "null"]
         sortOrder:
           type: integer
+        published:
+          type: boolean
       required: [sport, gender, level, venue, date, time, status]
 
     ScheduleMatchUpdate:
@@ -895,7 +899,9 @@ components:
           type: integer
         imageUrl:
           type: ["string", "null"]
-      required: [id, role, name, memberType, sortOrder]
+        published:
+          type: boolean
+      required: [id, role, name, memberType, sortOrder, published]
 
     TeamMemberInput:
       type: object
@@ -910,6 +916,8 @@ components:
           type: integer
         imageUrl:
           type: ["string", "null"]
+        published:
+          type: boolean
       required: [role, name, memberType]
 
     TeamMemberUpdate:
@@ -941,7 +949,9 @@ components:
           type: string
         sortOrder:
           type: integer
-      required: [id, name, category, size, fileUrl, sortOrder]
+        published:
+          type: boolean
+      required: [id, name, category, size, fileUrl, sortOrder, published]
 
     DownloadFileInput:
       type: object
@@ -956,6 +966,8 @@ components:
           type: string
         sortOrder:
           type: integer
+        published:
+          type: boolean
       required: [name, category, size, fileUrl]
 
     DownloadFileUpdate:

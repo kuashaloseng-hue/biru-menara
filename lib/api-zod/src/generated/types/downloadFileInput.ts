@@ -12,4 +12,5 @@ export interface DownloadFileInput {
   size: string;
   fileUrl: string;
   sortOrder?: number;
+  published?: boolean;
 }

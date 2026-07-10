@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import {
   useListGallery,
@@ -8,6 +8,23 @@ import {
   getListGalleryQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +60,98 @@ type GalleryItem = {
 
 const emptyForm = { imageUrl: "", caption: "", sortOrder: 0, published: true };
 
+// ─── Sortable Card ────────────────────────────────────────────────────────────
+function SortableCard({
+  item,
+  onEdit,
+  onDelete,
+}: {
+  item: GalleryItem;
+  onEdit: (item: GalleryItem) => void;
+  onDelete: (id: number) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="glass rounded-2xl overflow-hidden border border-white/5 hover:border-primary/30 transition-colors group"
+    >
+      {/* Image */}
+      <div className="relative h-48 bg-black/40">
+        <img
+          src={item.imageUrl}
+          alt={item.caption || "Gallery"}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+        {/* Drag handle — top-left */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="absolute top-3 left-3 cursor-grab active:cursor-grabbing bg-black/60 hover:bg-black/80 rounded-lg p-1.5 touch-none transition-colors"
+          title="กดค้างแล้วลากเพื่อเรียงลำดับ"
+        >
+          <GripVertical className="w-4 h-4 text-white" />
+        </button>
+
+        {/* Published badge */}
+        <div className="absolute top-3 right-3">
+          {item.published ? (
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">แสดง</Badge>
+          ) : (
+            <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30 text-xs">ซ่อน</Badge>
+          )}
+        </div>
+
+        {/* Caption overlay */}
+        {item.caption && (
+          <p className="absolute bottom-2 left-3 right-3 text-white text-sm font-medium line-clamp-1 pointer-events-none">
+            {item.caption}
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="p-3 flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground truncate flex-1">
+          {item.caption || <span className="italic">ไม่มีคำบรรยาย</span>}
+        </p>
+        <div className="flex gap-2 shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-white/10 hover:border-primary/50 h-8 px-3"
+            onClick={() => onEdit(item)}
+          >
+            <Pencil className="w-3 h-3" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-white/10 hover:border-destructive/50 hover:text-destructive h-8 px-3"
+            onClick={() => onDelete(item.id)}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminGallery() {
   const queryClient = useQueryClient();
   const { data: gallery, isLoading } = useListGallery({ query: { queryKey: getListGalleryQueryKey() } });
@@ -55,7 +164,24 @@ export default function AdminGallery() {
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+  // Local copy for optimistic drag order
+  const [localOrder, setLocalOrder] = useState<number[]>([]);
+  const orderedGallery = (() => {
+    if (!gallery) return [];
+    if (localOrder.length !== gallery.length) return gallery;
+    const map = new Map(gallery.map((g) => [g.id, g]));
+    return localOrder.map((id) => map.get(id)).filter(Boolean) as typeof gallery;
+  })();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const invalidate = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+    setLocalOrder([]);
+  }, [queryClient]);
 
   const openAdd = () => {
     setEditItem(null);
@@ -65,56 +191,79 @@ export default function AdminGallery() {
 
   const openEdit = (item: GalleryItem) => {
     setEditItem(item);
-    setForm({
-      imageUrl: item.imageUrl,
-      caption: item.caption,
-      sortOrder: item.sortOrder,
-      published: item.published,
-    });
+    setForm({ imageUrl: item.imageUrl, caption: item.caption, sortOrder: item.sortOrder, published: item.published });
     setModalOpen(true);
   };
 
   const handleSave = () => {
-    if (!form.imageUrl.trim()) {
-      toast.error("กรุณาใส่ URL รูปภาพ");
-      return;
-    }
+    if (!form.imageUrl.trim()) { toast.error("กรุณาใส่ URL รูปภาพ"); return; }
     if (editItem) {
-      updateImage.mutate(
-        { id: editItem.id, data: form },
-        {
-          onSuccess: () => { invalidate(); setModalOpen(false); toast.success("แก้ไขภาพสำเร็จ"); },
-          onError: () => toast.error("เกิดข้อผิดพลาด"),
-        }
-      );
+      updateImage.mutate({ id: editItem.id, data: form }, {
+        onSuccess: () => { invalidate(); setModalOpen(false); toast.success("แก้ไขภาพสำเร็จ"); },
+        onError: () => toast.error("เกิดข้อผิดพลาด"),
+      });
     } else {
-      createImage.mutate(
-        { data: form },
-        {
-          onSuccess: () => { invalidate(); setModalOpen(false); toast.success("เพิ่มภาพสำเร็จ"); },
-          onError: () => toast.error("เกิดข้อผิดพลาด"),
-        }
-      );
+      createImage.mutate({ data: form }, {
+        onSuccess: () => { invalidate(); setModalOpen(false); toast.success("เพิ่มภาพสำเร็จ"); },
+        onError: () => toast.error("เกิดข้อผิดพลาด"),
+      });
     }
   };
 
   const handleDelete = () => {
     if (deleteId === null) return;
-    deleteImage.mutate(
-      { id: deleteId },
-      {
-        onSuccess: () => { invalidate(); setDeleteId(null); toast.success("ลบภาพสำเร็จ"); },
-        onError: () => toast.error("เกิดข้อผิดพลาด"),
-      }
-    );
+    deleteImage.mutate({ id: deleteId }, {
+      onSuccess: () => { invalidate(); setDeleteId(null); toast.success("ลบภาพสำเร็จ"); },
+      onError: () => toast.error("เกิดข้อผิดพลาด"),
+    });
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !gallery) return;
+
+    const ids = (localOrder.length === gallery.length ? localOrder : gallery.map((g) => g.id));
+    const oldIdx = ids.indexOf(active.id as number);
+    const newIdx = ids.indexOf(over.id as number);
+    const newOrder = arrayMove(ids, oldIdx, newIdx);
+    setLocalOrder(newOrder);
+
+    // Persist new sortOrder — batch all, invalidate once after all complete
+    const updates = newOrder
+      .map((id, idx) => ({ id, sortOrder: idx + 1 }))
+      .filter(({ id, sortOrder }) => {
+        const item = gallery.find((g) => g.id === id);
+        return item && item.sortOrder !== sortOrder;
+      });
+
+    if (updates.length > 0) {
+      Promise.all(
+        updates.map(({ id, sortOrder }) =>
+          new Promise<void>((resolve, reject) =>
+            updateImage.mutate(
+              { id, data: { sortOrder } },
+              { onSuccess: () => resolve(), onError: reject }
+            )
+          )
+        )
+      ).then(() => {
+        queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+      }).catch(() => {
+        toast.error("บันทึกลำดับไม่สำเร็จ");
+        setLocalOrder([]);
+        queryClient.invalidateQueries({ queryKey: getListGalleryQueryKey() });
+      });
+    }
   };
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">จัดการแกลเลอรี่</h1>
-          <p className="text-muted-foreground">เพิ่ม แก้ไข ลบ และเรียงลำดับภาพในส่วนสไลด์โชว์</p>
+          <h1 className="text-3xl font-bold text-white mb-1">จัดการแกลเลอรี่</h1>
+          <p className="text-muted-foreground text-sm">
+            🖱 <strong className="text-white">กดค้างที่ไอคอน ⠿ แล้วลาก</strong> เพื่อเรียงลำดับภาพ
+          </p>
         </div>
         <Button onClick={openAdd} className="gap-2">
           <Plus className="w-4 h-4" /> เพิ่มภาพ
@@ -132,72 +281,20 @@ export default function AdminGallery() {
           </Button>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gallery.map((item) => (
-            <div
-              key={item.id}
-              className="glass rounded-2xl overflow-hidden border border-white/5 hover:border-primary/30 transition-colors group"
-            >
-              {/* Image */}
-              <div className="relative h-48 bg-black/40">
-                <img
-                  src={item.imageUrl}
-                  alt={item.caption || "Gallery image"}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "";
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={orderedGallery.map((g) => g.id)} strategy={rectSortingStrategy}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {orderedGallery.map((item) => (
+                <SortableCard
+                  key={item.id}
+                  item={item as GalleryItem}
+                  onEdit={openEdit}
+                  onDelete={setDeleteId}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                {/* Sort order badge */}
-                <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 rounded-lg px-2 py-1">
-                  <GripVertical className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">#{item.sortOrder}</span>
-                </div>
-                {/* Published badge */}
-                <div className="absolute top-3 right-3">
-                  {item.published ? (
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">แสดง</Badge>
-                  ) : (
-                    <Badge className="bg-gray-500/20 text-gray-400 border-gray-500/30 text-xs">ซ่อน</Badge>
-                  )}
-                </div>
-                {/* Caption overlay */}
-                {item.caption && (
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <p className="text-white text-sm font-medium line-clamp-2">{item.caption}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="p-4 flex items-center justify-between gap-2">
-                <p className="text-xs text-muted-foreground truncate flex-1">
-                  {item.caption || <span className="italic">ไม่มีคำบรรยาย</span>}
-                </p>
-                <div className="flex gap-2 shrink-0">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 hover:border-primary/50 h-8 px-3"
-                    onClick={() => openEdit(item as GalleryItem)}
-                  >
-                    <Pencil className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 hover:border-destructive/50 hover:text-destructive h-8 px-3"
-                    onClick={() => setDeleteId(item.id)}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Add/Edit Modal */}
@@ -216,7 +313,7 @@ export default function AdminGallery() {
                 className="bg-black/30 border-white/10"
               />
               {form.imageUrl && (
-                <div className="mt-2 rounded-lg overflow-hidden border border-white/10 h-36 bg-black/40">
+                <div className="rounded-lg overflow-hidden border border-white/10 h-36 bg-black/40">
                   <img
                     src={form.imageUrl}
                     alt="preview"
@@ -226,7 +323,6 @@ export default function AdminGallery() {
                 </div>
               )}
             </div>
-
             <div className="space-y-2">
               <Label>ข้อความใต้ภาพ (คำบรรยาย)</Label>
               <Input
@@ -236,40 +332,19 @@ export default function AdminGallery() {
                 className="bg-black/30 border-white/10"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>ลำดับการแสดง</Label>
-                <Input
-                  type="number"
-                  value={form.sortOrder}
-                  onChange={(e) => setForm({ ...form, sortOrder: Number(e.target.value) })}
-                  className="bg-black/30 border-white/10"
-                  min={0}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>สถานะ</Label>
-                <div className="flex items-center gap-3 h-10">
-                  <Switch
-                    checked={form.published}
-                    onCheckedChange={(v) => setForm({ ...form, published: v })}
-                  />
-                  <span className="text-sm text-muted-foreground">
-                    {form.published ? "แสดงบนเว็บ" : "ซ่อน"}
-                  </span>
-                </div>
-              </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={form.published}
+                onCheckedChange={(v) => setForm({ ...form, published: v })}
+              />
+              <span className="text-sm text-muted-foreground">
+                {form.published ? "แสดงบนเว็บ" : "ซ่อน"}
+              </span>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModalOpen(false)} className="border-white/10">
-              ยกเลิก
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={createImage.isPending || updateImage.isPending}
-            >
+            <Button variant="outline" onClick={() => setModalOpen(false)} className="border-white/10">ยกเลิก</Button>
+            <Button onClick={handleSave} disabled={createImage.isPending || updateImage.isPending}>
               {editItem ? "บันทึกการแก้ไข" : "เพิ่มภาพ"}
             </Button>
           </DialogFooter>
@@ -281,9 +356,7 @@ export default function AdminGallery() {
         <AlertDialogContent className="bg-card border-white/10">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">ยืนยันการลบภาพ</AlertDialogTitle>
-            <AlertDialogDescription>
-              ภาพนี้จะถูกลบออกจากแกลเลอรี่ถาวร ไม่สามารถกู้คืนได้
-            </AlertDialogDescription>
+            <AlertDialogDescription>ภาพนี้จะถูกลบถาวร ไม่สามารถกู้คืนได้</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-white/10">ยกเลิก</AlertDialogCancel>

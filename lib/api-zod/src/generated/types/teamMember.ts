@@ -14,4 +14,5 @@ export interface TeamMember {
   sortOrder: number;
   /** @nullable */
   imageUrl?: string | null;
+  published: boolean;
 }

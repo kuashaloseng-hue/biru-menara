@@ -13,4 +13,5 @@ export interface DownloadFile {
   size: string;
   fileUrl: string;
   sortOrder: number;
+  published: boolean;
 }

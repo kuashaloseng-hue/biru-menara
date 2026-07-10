@@ -18,4 +18,5 @@ export interface ScheduleMatch {
   /** @nullable */
   result?: string | null;
   sortOrder: number;
+  published: boolean;
 }

@@ -1,37 +1,19 @@
 import { Layout } from "@/components/layout/Layout";
 import { motion } from "framer-motion";
-import { Users, ShieldCheck, Target, Star } from "lucide-react";
+import { Users, ShieldCheck, Target, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
+import { useListTeamMembers, getListTeamMembersQueryKey } from "@workspace/api-client-react";
 import rosterImg from "@assets/1783520713566_1783520781749.jpg";
 import placeholderPortrait from "@assets/generated_images/placeholder_portrait.jpg";
 
-const LEADERS = [
-  {
-    role: "พ่อสี",
-    name: "อ.มุสดากีม สะบุดิง",
-    icon: Star,
-    color: "from-blue-600 to-indigo-600",
-  },
-  {
-    role: "แม่สี",
-    name: "อ.โชริยาดี ยะมะกา",
-    icon: Star,
-    color: "from-cyan-600 to-blue-600",
-  },
-];
-
-const STAFF = [
-  { role: "หัวหน้าฝ่ายชาย", name: "รอการอัปเดต", type: "main" },
-  { role: "หัวหน้าฝ่ายหญิง", name: "รอการอัปเดต", type: "main" },
-  { role: "รองหัวหน้าฝ่ายชาย", name: "รอการอัปเดต", type: "sub" },
-  { role: "รองหัวหน้าฝ่ายหญิง", name: "รอการอัปเดต", type: "sub" },
-  { role: "เลขาฝ่ายชาย", name: "รอการอัปเดต", type: "sub" },
-  { role: "เลขาฝ่ายหญิง", name: "รอการอัปเดต", type: "sub" },
-];
-
 export default function Team() {
+  const { data: allMembers, isLoading } = useListTeamMembers({ query: { queryKey: getListTeamMembersQueryKey() } });
+  const members = allMembers?.filter((m) => m.published !== false) ?? [];
+
+  const leaders = members.filter((m) => m.memberType === "main");
+  const staff = members.filter((m) => m.memberType !== "main");
+
   return (
     <Layout>
       <div className="bg-muted py-20 border-b border-border relative overflow-hidden">
@@ -52,78 +34,107 @@ export default function Team() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        
-        {/* Main Leaders */}
-        <div className="mb-20 text-center">
-          <h2 className="text-3xl font-bold text-white mb-12 flex items-center justify-center gap-3">
-            <ShieldCheck className="h-8 w-8 text-primary" /> คณะครูที่ปรึกษาสี
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {LEADERS.map((leader, i) => (
-              <motion.div
-                key={leader.role}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
-              >
-                <div className={`relative rounded-3xl p-1 bg-gradient-to-br ${leader.color}`}>
-                  <div className="bg-card rounded-[22px] p-8 h-full flex flex-col items-center text-center">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-background shadow-2xl mb-6 relative">
-                      <img src={placeholderPortrait} alt={leader.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-primary/20 mix-blend-overlay"></div>
-                    </div>
-                    <Badge className="bg-white/10 text-white border-white/20 mb-3">{leader.role}</Badge>
-                    <h3 className="text-2xl font-bold text-white">{leader.name}</h3>
-                  </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-32">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : (
+          <>
+            {leaders.length > 0 && (
+              <div className="mb-20 text-center">
+                <h2 className="text-3xl font-bold text-white mb-12 flex items-center justify-center gap-3">
+                  <ShieldCheck className="h-8 w-8 text-primary" /> คณะครูที่ปรึกษาสี
+                </h2>
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {leaders.map((leader, i) => (
+                    <motion.div
+                      key={leader.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.2 }}
+                    >
+                      <div className="relative rounded-3xl p-1 bg-gradient-to-br from-blue-600 to-indigo-600">
+                        <div className="bg-card rounded-[22px] p-8 h-full flex flex-col items-center text-center">
+                          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-background shadow-2xl mb-6 relative">
+                            <img
+                              src={leader.imageUrl || placeholderPortrait}
+                              alt={leader.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { (e.target as HTMLImageElement).src = placeholderPortrait; }}
+                            />
+                          </div>
+                          <Badge className="bg-white/10 text-white border-white/20 mb-3">{leader.role}</Badge>
+                          <h3 className="text-2xl font-bold text-white">{leader.name}</h3>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+              </div>
+            )}
 
-        {/* Student Leaders */}
-        <div className="mb-24">
-          <h2 className="text-3xl font-bold text-white mb-12 flex items-center justify-center gap-3 text-center">
-            <Target className="h-8 w-8 text-accent" /> คณะกรรมการนักเรียนสีฟ้า
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {STAFF.map((staff, i) => (
-              <motion.div
-                key={staff.role}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className={`glass border-white/10 hover:border-primary/50 transition-all ${staff.type === 'main' ? 'bg-primary/5' : ''}`}>
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center border-2 border-white/10 shrink-0 overflow-hidden">
-                      <Users className="h-6 w-6 text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-primary font-bold mb-1">{staff.role}</p>
-                      <h4 className="text-lg font-medium text-white">{staff.name}</h4>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+            {staff.length > 0 && (
+              <div className="mb-24">
+                <h2 className="text-3xl font-bold text-white mb-12 flex items-center justify-center gap-3 text-center">
+                  <Target className="h-8 w-8 text-accent" /> คณะกรรมการนักเรียนสีฟ้า
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {staff.map((member, i) => (
+                    <motion.div
+                      key={member.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }}
+                    >
+                      <Card className="glass border-white/10 hover:border-primary/50 transition-all">
+                        <CardContent className="p-6 flex items-center gap-4">
+                          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/10 shrink-0">
+                            {member.imageUrl ? (
+                              <img
+                                src={member.imageUrl}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).src = placeholderPortrait; }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center">
+                                <Users className="h-6 w-6 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm text-primary font-bold mb-1">{member.role}</p>
+                            <h4 className="text-lg font-medium text-white">{member.name}</h4>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Full Roster Image */}
-        <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-          <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6 z-10">
-            <h3 className="text-2xl font-bold text-white">รายชื่อนักกีฬาและคณะทำงาน</h3>
-          </div>
-          <img 
-            src={rosterImg} 
-            alt="รายชื่อนักกีฬาและคณะทำงาน" 
-            className="w-full h-auto object-contain max-h-[800px] opacity-90 hover:opacity-100 transition-opacity" 
-          />
-        </div>
+            {members.length === 0 && (
+              <div className="text-center py-24 glass rounded-2xl">
+                <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                <h3 className="text-xl font-medium text-white mb-2">ยังไม่มีข้อมูลคณะทำงาน</h3>
+                <p className="text-muted-foreground">ผู้ดูแลระบบกำลังอัปเดตข้อมูล</p>
+              </div>
+            )}
 
+            <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 to-transparent p-6 z-10">
+                <h3 className="text-2xl font-bold text-white">รายชื่อนักกีฬาและคณะทำงาน</h3>
+              </div>
+              <img
+                src={rosterImg}
+                alt="รายชื่อนักกีฬาและคณะทำงาน"
+                className="w-full h-auto object-contain max-h-[800px] opacity-90 hover:opacity-100 transition-opacity"
+              />
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );

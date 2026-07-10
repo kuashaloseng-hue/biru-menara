@@ -13,4 +13,5 @@ export interface TeamMemberInput {
   sortOrder?: number;
   /** @nullable */
   imageUrl?: string | null;
+  published?: boolean;
 }

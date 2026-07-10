@@ -90,6 +90,7 @@ export interface ScheduleMatch {
   /** @nullable */
   result?: string | null;
   sortOrder: number;
+  published: boolean;
 }
 
 export interface ScheduleMatchInput {
@@ -103,6 +104,7 @@ export interface ScheduleMatchInput {
   /** @nullable */
   result?: string | null;
   sortOrder?: number;
+  published?: boolean;
 }
 
 export interface ScheduleMatchUpdate {
@@ -126,6 +128,7 @@ export interface TeamMember {
   sortOrder: number;
   /** @nullable */
   imageUrl?: string | null;
+  published: boolean;
 }
 
 export interface TeamMemberInput {
@@ -135,6 +138,7 @@ export interface TeamMemberInput {
   sortOrder?: number;
   /** @nullable */
   imageUrl?: string | null;
+  published?: boolean;
 }
 
 export interface TeamMemberUpdate {
@@ -153,6 +157,7 @@ export interface DownloadFile {
   size: string;
   fileUrl: string;
   sortOrder: number;
+  published: boolean;
 }
 
 export interface DownloadFileInput {
@@ -161,6 +166,7 @@ export interface DownloadFileInput {
   size: string;
   fileUrl: string;
   sortOrder?: number;
+  published?: boolean;
 }
 
 export interface DownloadFileUpdate {

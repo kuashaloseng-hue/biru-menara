@@ -20,6 +20,7 @@ import AdminTeam from '@/pages/admin/AdminTeam';
 import AdminDownloads from '@/pages/admin/AdminDownloads';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import AdminGallery from '@/pages/admin/AdminGallery';
+import AdminPreview from '@/pages/admin/AdminPreview';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/admin/team" component={AdminTeam} />
       <Route path="/admin/downloads" component={AdminDownloads} />
       <Route path="/admin/gallery" component={AdminGallery} />
+      <Route path="/admin/preview" component={AdminPreview} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin" component={AdminDashboard} />
       
