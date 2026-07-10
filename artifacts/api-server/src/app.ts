@@ -32,12 +32,16 @@ app.use(
   }),
 );
 
-// Restrict CORS to same-origin requests and the Replit dev proxy.
-// Credentials are only sent on same-origin requests from the admin SPA.
-const devDomain = process.env.REPLIT_DEV_DOMAIN;
+// Restrict CORS to same-origin requests plus known Replit proxy domains.
+// Credentials (session cookies) are only sent on same-origin requests from the
+// admin SPA. We allow:
+//   • localhost (local dev)
+//   • *.replit.dev  (Replit workspace preview proxy, e.g. REPLIT_DEV_DOMAIN)
+//   • *.replit.app  (Replit published/deployed apps, e.g. biru-menara-site.replit.app)
 const allowedOrigins = [
   /^https?:\/\/localhost(:\d+)?$/,
-  ...(devDomain ? [new RegExp(`https://${devDomain.replace(".", "\\.")}$`)] : []),
+  /^https:\/\/[^.]+\.replit\.dev$/,
+  /^https:\/\/[^.]+\.replit\.app$/,
 ];
 app.use(
   cors({
