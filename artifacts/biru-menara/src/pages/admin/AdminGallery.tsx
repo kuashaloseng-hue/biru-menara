@@ -27,6 +27,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AdminImageUploader } from "@/components/admin/AdminImageUploader";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -196,7 +197,7 @@ export default function AdminGallery() {
   };
 
   const handleSave = () => {
-    if (!form.imageUrl.trim()) { toast.error("กรุณาใส่ URL รูปภาพ"); return; }
+    if (!form.imageUrl.trim()) { toast.error("กรุณาเลือกหรือใส่ URL รูปภาพ"); return; }
     if (editItem) {
       updateImage.mutate({ id: editItem.id, data: form }, {
         onSuccess: () => { invalidate(); setModalOpen(false); toast.success("แก้ไขภาพสำเร็จ"); },
@@ -304,25 +305,11 @@ export default function AdminGallery() {
             <DialogTitle className="text-white">{editItem ? "แก้ไขภาพ" : "เพิ่มภาพใหม่"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-5 py-2">
-            <div className="space-y-2">
-              <Label>URL รูปภาพ *</Label>
-              <Input
-                value={form.imageUrl}
-                onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                placeholder="https://... วางลิงก์รูปภาพ"
-                className="bg-black/30 border-white/10"
-              />
-              {form.imageUrl && (
-                <div className="rounded-lg overflow-hidden border border-white/10 h-36 bg-black/40">
-                  <img
-                    src={form.imageUrl}
-                    alt="preview"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                  />
-                </div>
-              )}
-            </div>
+            <AdminImageUploader
+              label="รูปภาพ *"
+              value={form.imageUrl}
+              onChange={(url) => setForm({ ...form, imageUrl: url })}
+            />
             <div className="space-y-2">
               <Label>ข้อความใต้ภาพ (คำบรรยาย)</Label>
               <Input
