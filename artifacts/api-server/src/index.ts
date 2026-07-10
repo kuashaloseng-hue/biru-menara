@@ -1,3 +1,10 @@
+// Capture any uncaught exception that happens during module load or startup
+// and write it to stderr so Replit deployment logs capture the cause.
+process.on("uncaughtException", (err) => {
+  process.stderr.write(`[FATAL] Uncaught exception at startup:\n${err?.stack ?? err}\n`);
+  process.exit(1);
+});
+
 import app from "./app";
 import { logger } from "./lib/logger";
 
