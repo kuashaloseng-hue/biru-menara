@@ -55,8 +55,8 @@ export function Navbar() {
                   className={cn(
                     "px-3 py-2 rounded-md text-sm font-medium transition-all duration-300",
                     location === link.href
-                      ? "text-accent glow-text bg-white/5"
-                      : "text-gray-300 hover:text-white hover:bg-white/5 hover:glow-text"
+                      ? "text-blue-900 bg-blue-100"
+                      : "text-black hover:text-blue-900 hover:bg-blue-100"
                   )}
                 >
                   {link.label}
@@ -68,7 +68,7 @@ export function Navbar() {
           <div className="-mr-2 flex md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-md text-black hover:text-blue-900 hover:bg-blue-100"
             >
               <span className="sr-only">Open main menu</span>
               {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
@@ -88,7 +88,7 @@ export function Navbar() {
                 onClick={closeMenu}
                 className={cn(
                   "block px-3 py-2 rounded-md text-base font-medium",
-                  location === link.href ? "text-accent bg-white/10" : "text-gray-300 hover:text-white hover:bg-white/5"
+                  location === link.href ? "text-blue-900 bg-blue-100" : "text-black hover:text-blue-900 hover:bg-blue-100"
                 )}
               >
                 {link.label}

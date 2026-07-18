@@ -126,7 +126,9 @@ export default function AdminTeam() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">จัดการคณะทำงาน</h1>
+          <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+  จัดการคณะทำงาน
+</h1>
           <p className="text-muted-foreground">จัดการรายชื่อ บทบาท และรูปภาพของคณะทำงานสีฟ้า</p>
         </div>
         <Button onClick={handleOpenCreate} className="gap-2">

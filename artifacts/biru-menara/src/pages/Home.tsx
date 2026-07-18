@@ -45,10 +45,12 @@ export default function Home() {
           <img
             src={heroBg}
             alt="BIRU MENARA Banner"
-            className="w-full h-full object-cover opacity-40 scale-105 motion-safe:animate-[pulse_10s_ease-in-out_infinite]"
+            className="w-full h-full object-cover opacity-80 scale-105 motion-safe:animate-[pulse_10s_ease-in-out_infinite]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/60 to-transparent" />
+
+<div className="absolute inset-0
+bg-gradient-to-r from-white/80 via-white/30 to-transparent" />
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left flex flex-col md:flex-row items-center">
@@ -58,19 +60,19 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="flex-1 space-y-6"
           >
-            <div className="inline-block px-4 py-1.5 rounded-full glass border-primary/30 text-primary font-medium text-sm mb-4">
-              ✨ อัตตัรกียะห์อิสลามียะห์ สปอร์ตเดย์ 2026
+            <div className="inline-block px-4 py-1.5 rounded-full glass border-primary/30 text-primary font-medium text-sm mb-4"> 
+          🩵ATTAR GAME 2026🩵
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter drop-shadow-2xl">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-blue-900 tracking-tighter drop-shadow-2xl">
               {settings?.heroTitle ? (
                 <span>{settings.heroTitle}</span>
               ) : (
                 <>BIRU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent glow-text">MENARA</span></>
               )}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 font-medium max-w-2xl leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-800 font-medium max-w-2xl leading-relaxed">
               {settings?.heroSlogan || (
-                <>กีฬาสร้างคน สายน้ำสร้างวิถีชีวิต บรรพบุรุษสร้างแนวคิด <span className="text-white font-bold">สีฟ้าพิชิต เชิดชูเมืองนรา</span></>
+                <>กีฬาสร้างคน สายน้ำสร้างวิถีชีวิต บรรพบุรุษสร้างแนวคิด <span className="text-blue-800 font-bold">สีฟ้าพิชิต เชิดชูเมืองนรา</span></>
               )}
             </p>
             <p className="text-lg text-primary/80 max-w-xl">
@@ -78,12 +80,12 @@ export default function Home() {
             </p>
             <div className="pt-4 flex flex-wrap gap-4 justify-center md:justify-start">
               <Link href="/schedule">
-                <Button size="xl" className="group">
+                <Button size="xl" className="group text-blue-600">
                   ตารางแข่งขัน <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link href="/team">
-                <Button size="xl" variant="glass">ทำความรู้จักทีมเรา</Button>
+                <Button size="xl" variant="glass" className="text-blue-600" >ทำความรู้จักทีมเรา</Button>
               </Link>
             </div>
           </motion.div>
@@ -105,8 +107,8 @@ export default function Home() {
                   "group h-32 rounded-2xl border backdrop-blur-xl bg-gradient-to-br flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer",
                   item.color, item.borderColor, "hover:shadow-[0_0_30px_rgba(0,150,255,0.2)]"
                 )}>
-                  <item.icon className="h-8 w-8 text-white group-hover:text-accent transition-colors drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(0,150,255,0.8)]" />
-                  <span className="font-semibold text-lg text-white group-hover:text-white/90">{item.title}</span>
+                  <item.icon className="h-8 w-8 text-blue-900 group-hover:text-accent transition-colors drop-shadow-md group-hover:drop-shadow-[0_0_8px_rgba(0,150,255,0.8)]" />
+                  <span className="font-semibold text-lg text-blue-900 group-hover:text-blue-900">{item.title}</span>
                 </div>
               </Link>
             </motion.div>
@@ -118,7 +120,7 @@ export default function Home() {
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3 mb-8">
           <Bell className="h-8 w-8 text-primary" />
-          <h2 className="text-3xl font-bold text-white">ประกาศสำคัญ</h2>
+          <h2 className="text-3xl font-bold text-blue-900">ประกาศสำคัญ</h2>
         </div>
         {displayedAnnouncements.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-muted-foreground">
@@ -136,7 +138,7 @@ export default function Home() {
                   )}
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className={cn("font-bold text-lg", ann.urgent ? "text-destructive-foreground" : "text-white")}>{ann.title}</h3>
+                      <h3 className={cn("font-bold text-lg", ann.urgent ?"text-red-700"  : "text-blue-900")}>{ann.title}</h3>
                       {ann.urgent && <Badge variant="destructive" className="animate-pulse">ด่วน</Badge>}
                     </div>
                     <p className="text-gray-400 text-sm mb-4">{ann.content}</p>
@@ -153,7 +155,7 @@ export default function Home() {
       {galleryImages.length > 0 && (
         <section className="py-12 bg-black/40 border-y border-white/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center">
-            <h2 className="text-3xl font-bold text-white mb-2">ภาพบรรยากาศ</h2>
+            <h2 className="text-3xl font-bold text-blue-900 mb-2">ภาพบรรยากาศ</h2>
             <p className="text-muted-foreground">ภาพแห่งความประทับใจของชาวสีฟ้า</p>
           </div>
           <div className="max-w-6xl mx-auto px-4">
@@ -162,8 +164,8 @@ export default function Home() {
                 {galleryImages.map((img, i) => (
                   <div className="flex-[0_0_100%] min-w-0 relative h-[400px] md:h-[600px] mx-2 rounded-2xl overflow-hidden" key={img.id ?? i}>
                     <img src={img.imageUrl} alt={img.caption} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
-                      {img.caption && <h3 className="text-2xl font-bold text-white drop-shadow-lg">{img.caption}</h3>}
+                    <div className="absolute inset-0 flex flex-col justify-end p-8">
+                      {img.caption && <h3 className="text-2xl font-bold text-blue-900 drop-shadow-lg">{img.caption}</h3>}
                     </div>
                   </div>
                 ))}
@@ -177,7 +179,7 @@ export default function Home() {
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">ข่าวล่าสุด</h2>
+            <h2 className="text-3xl font-bold text-blue-900 mb-2">ข่าวล่าสุด</h2>
             <p className="text-muted-foreground">อัปเดตความเคลื่อนไหวล่าสุดของทีม</p>
           </div>
           <Link href="/news">
@@ -195,7 +197,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {latestNews.map((news, i) => (
               <motion.div key={news.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
+                <Card className="overflow-hidden bg-card border-blue-200 hover:border-primary/50 transition-colors group cursor-pointer h-full flex flex-col">
                   <div className="h-48 overflow-hidden relative bg-gradient-to-br from-primary/20 to-accent/10">
                     {news.imageUrl ? (
                       <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -205,13 +207,13 @@ export default function Home() {
                       </div>
                     )}
                     <div className="absolute top-4 left-4">
-                      <Badge variant="default" className="bg-primary text-white border-none shadow-lg">{news.category}</Badge>
+                      <Badge variant="default" className="bg-primary text-blue-900 border-none shadow-lg">{news.category}</Badge>
                     </div>
                   </div>
                   <CardContent className="p-6 flex flex-col flex-1">
                     <p className="text-xs text-muted-foreground mb-2">{news.date}</p>
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">{news.title}</h3>
-                    <p className="text-gray-400 text-sm mb-4 flex-1">{news.excerpt}</p>
+                    <h3 className="text-xl font-bold text-blue-900 mb-3 group-hover:text-primary transition-colors">{news.title}</h3>
+                    <p className="text-gray-700 text-sm mb-4 flex-1">{news.excerpt}</p>
                     <Link href="/news">
                       <span className="text-accent text-sm font-medium hover:underline inline-flex items-center">
                         อ่านเพิ่มเติม <ArrowRight className="ml-1 h-3 w-3" />

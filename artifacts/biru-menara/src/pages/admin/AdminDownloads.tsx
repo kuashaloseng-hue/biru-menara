@@ -121,7 +121,9 @@ export default function AdminDownloads() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">จัดการไฟล์ดาวน์โหลด</h1>
+          <h1 className="text-3xl font-bold text-indigo-900 mb-2">
+  จัดการไฟล์ดาวน์โหลด
+</h1>
           <p className="text-muted-foreground">เอกสาร เพลงเชียร์ และไฟล์สื่อต่างๆ</p>
         </div>
         <Button onClick={handleOpenCreate} className="gap-2">

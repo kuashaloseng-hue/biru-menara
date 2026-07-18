@@ -5,7 +5,7 @@ import { useEffect } from "react";
 export function Layout({ children }: { children: React.ReactNode }) {
   // Force dark mode
   useEffect(() => {
-    document.documentElement.classList.add("dark");
+    document.documentElement.classList.remove("dark");
   }, []);
 
   return (

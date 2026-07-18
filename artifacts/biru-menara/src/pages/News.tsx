@@ -28,7 +28,7 @@ export default function News() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Newspaper className="h-16 w-16 mx-auto text-primary mb-6 drop-shadow-[0_0_15px_rgba(0,150,255,0.5)]" />
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">ข่าวสารและประกาศ</h1>
+            <h1 className="text-4xl md:text-5xl font-black text-blue-900 mb-4">ข่าวสารและประกาศ</h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               ติดตามทุกความเคลื่อนไหว การแข่งขัน และกิจกรรมต่างๆ ของชาวสีฟ้า BIRU MENARA
             </p>
@@ -50,8 +50,8 @@ export default function News() {
                   onClick={() => setActiveCategory(cat)}
                   className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
                     activeCategory === cat
-                      ? "bg-primary text-white shadow-[0_0_15px_rgba(0,150,255,0.4)]"
-                      : "bg-white/5 text-gray-300 hover:bg-white/10"
+                      ? "bg-white border border-blue-200 text-gray-700 hover:bg-blue-50 shadow-[0_0_15px_rgba(0,150,255,0.4)]"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10"
                   }`}
                 >
                   {cat}
@@ -70,7 +70,7 @@ export default function News() {
                     className="cursor-pointer"
                     onClick={() => setLocation(`/news/${news.id}`)}
                   >
-                    <Card className="overflow-hidden bg-card border-white/10 hover:border-primary/50 transition-colors group h-full flex flex-col">
+                    <Card className="overflow-hidden bg-card border-blue-200 hover:border-primary/50 transition-colors group h-full flex flex-col">
                       <div className="h-56 overflow-hidden relative bg-gradient-to-br from-primary/20 to-accent/10">
                         {news.imageUrl ? (
                           <img
@@ -83,7 +83,7 @@ export default function News() {
                             <ImageIcon className="w-16 h-16 text-primary/30" />
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent pointer-events-none"></div>
                         <div className="absolute top-4 left-4">
                           <Badge
                             variant={news.category === "ข่าวด่วน" ? "destructive" : "default"}
@@ -94,11 +94,11 @@ export default function News() {
                         </div>
                       </div>
                       <CardContent className="p-6 flex flex-col flex-1">
-                        <p className="text-xs text-muted-foreground mb-3 font-medium">{news.date}</p>
-                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors leading-tight">
+                        <p className="text-xs text-gray-600 mb-3 font-medium">{news.date}</p>
+                        <h3 className="text-xl font-bold text-blue-800 mb-3 group-hover:text-accent transition-colors leading-tight">
                           {news.title}
                         </h3>
-                        <p className="text-gray-400 text-sm mb-6 flex-1 line-clamp-3">{news.excerpt}</p>
+                        <p className="text-gray-700 text-sm mb-6 flex-1 line-clamp-3">{news.excerpt}</p>
                         <div className="mt-auto">
                           <Button
                             variant="outline"
@@ -116,7 +116,7 @@ export default function News() {
             ) : (
               <div className="text-center py-24 glass rounded-2xl">
                 <Newspaper className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-                <h3 className="text-xl font-medium text-white mb-2">ไม่พบข่าวสารในหมวดหมู่นี้</h3>
+                <h3 className="text-xl font-medium text-blue-900 mb-2">ไม่พบข่าวสารในหมวดหมู่นี้</h3>
                 <p className="text-muted-foreground">ลองเลือกหมวดหมู่ใหม่ หรือกลับมาตรวจสอบอีกครั้ง</p>
               </div>
             )}

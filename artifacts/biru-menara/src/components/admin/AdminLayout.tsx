@@ -55,7 +55,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card/50 backdrop-blur-xl border-r border-white/10 p-4">
       <div className="mb-8 px-4">
-        <h2 className="text-2xl font-black text-white tracking-tighter drop-shadow-md">
+        <h2 className="text-2xl font-black text-gray-900 tracking-tighter drop-shadow-md">
           BIRU <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent glow-text">MENARA</span>
         </h2>
         <p className="text-xs text-muted-foreground mt-1 font-medium">แผงควบคุม</p>

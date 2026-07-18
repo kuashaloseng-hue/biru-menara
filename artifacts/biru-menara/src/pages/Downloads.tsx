@@ -30,8 +30,8 @@ export default function Downloads() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <DownloadIcon className="h-16 w-16 mx-auto text-primary mb-6 drop-shadow-[0_0_15px_rgba(0,150,255,0.5)]" />
-            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">ศูนย์ดาวน์โหลด</h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-black text-blue-900 mb-4">ศูนย์ดาวน์โหลด</h1>
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               รวบรวมไฟล์เอกสาร รูปภาพ โลโก้ และสื่อต่างๆ ของสีฟ้า สำหรับนักกีฬาและกองเชียร์
             </p>
           </motion.div>
@@ -46,14 +46,14 @@ export default function Downloads() {
         ) : published.length === 0 ? (
           <div className="flex-1 text-center py-24 glass rounded-2xl">
             <FileArchive className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-            <h3 className="text-xl font-medium text-white mb-2">ยังไม่มีไฟล์ดาวน์โหลด</h3>
+            <h3 className="text-xl font-medium text-blue-900 mb-2">ยังไม่มีไฟล์ดาวน์โหลด</h3>
             <p className="text-muted-foreground">ผู้ดูแลระบบกำลังเพิ่มไฟล์</p>
           </div>
         ) : (
           <>
             <div className="w-full md:w-64 shrink-0">
               <div className="glass rounded-xl p-4 sticky top-24">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 px-2">หมวดหมู่ไฟล์</h3>
+                <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-4 px-2">หมวดหมู่ไฟล์</h3>
                 <div className="flex flex-col gap-1">
                   {categories.map((cat) => (
                     <button
@@ -61,8 +61,8 @@ export default function Downloads() {
                       onClick={() => setActiveCategory(cat)}
                       className={`text-left px-4 py-3 rounded-lg font-medium transition-all ${
                         currentCat === cat
-                          ? "bg-primary/20 text-primary border border-primary/30"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
+                          ? "bg-blue-100 text-blue-900 border border-primary/30"
+                          : "text-slate-700 hover:bg-blue-100 hover:text-blue-900"
                       }`}
                     >
                       {cat}
@@ -73,7 +73,7 @@ export default function Downloads() {
             </div>
 
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white mb-6 border-b border-white/10 pb-4">{currentCat}</h2>
+              <h2 className="text-2xl font-bold text-indigo-900 mb-6 border-b border-blue-200 pb-4"> {currentCat}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 {filtered.length > 0 ? (
                   filtered.map((file, i) => {
@@ -86,18 +86,18 @@ export default function Downloads() {
                         transition={{ delay: i * 0.08 }}
                       >
                         <a href={file.fileUrl} target="_blank" rel="noreferrer" className="block h-full">
-                          <div className="glass rounded-xl p-5 border border-white/10 hover:border-primary hover:bg-primary/5 transition-all group h-full flex items-center">
-                            <div className="h-12 w-12 rounded-lg bg-white/5 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all shrink-0 mr-4">
+                          <div className="glass rounded-xl p-5 border border-blue-200 hover:border-primary hover:bg-primary/5 transition-all group h-full flex items-center">
+                            <div className="h-12 w-12 rounded-lg bg-blue-50 flex items-center justify-center text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all shrink-0 mr-4">
                               <Icon className="h-6 w-6" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-white truncate group-hover:text-primary transition-colors">
+                              <h4 className="font-semibold text-blue-900 truncate group-hover:text-blue-700 transition-colors">
                                 {file.name}
                               </h4>
-                              <p className="text-sm text-gray-500">{file.size}</p>
+                              <p className="text-sm text-blue-700">{file.size}</p>
                             </div>
                             <div className="shrink-0 ml-4">
-                              <Button size="icon" variant="ghost" className="rounded-full bg-white/5 group-hover:bg-primary group-hover:text-white transition-all">
+                              <Button size="icon" variant="ghost" className="rounded-full bg-blue-100 text-blue-900 group-hover:bg-blue-700 group-hover:text-white transition-all">
                                 <ArrowDownToLine className="h-4 w-4" />
                               </Button>
                             </div>
@@ -107,7 +107,7 @@ export default function Downloads() {
                     );
                   })
                 ) : (
-                  <div className="col-span-full py-12 text-center text-muted-foreground glass rounded-xl border-dashed">
+                  <div className="col-span-full py-12 text-center text-gray-600 glass rounded-xl border-dashed">
                     <FileArchive className="h-12 w-12 mx-auto mb-3 opacity-20" />
                     <p>ยังไม่มีไฟล์ในหมวดหมู่นี้</p>
                   </div>
