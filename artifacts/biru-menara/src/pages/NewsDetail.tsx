@@ -22,7 +22,7 @@ export default function NewsDetail() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <Button
             variant="ghost"
-            className="gap-2 text-muted-foreground hover:text-white"
+            className="gap-2 text-gray-600 hover:text-blue-700"
             onClick={() => setLocation("/news")}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -75,25 +75,25 @@ export default function NewsDetail() {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-black text-blue-900 mb-6 leading-tight">
               {news.title}
             </h1>
 
             {/* Excerpt */}
             {news.excerpt && (
-              <p className="text-lg text-gray-300 mb-8 border-l-4 border-primary/60 pl-4 italic leading-relaxed">
+              <p className="text-lg text-gray-600 mb-8 border-l-4 border-primary/60 pl-4 italic leading-relaxed">
                 {news.excerpt}
               </p>
             )}
 
             {/* Divider */}
-            <div className="border-t border-white/10 mb-8" />
+            <div className="border-t border-gray-200 mb-8" />
 
             {/* Full content */}
             <div className="prose prose-invert max-w-none">
               {news.content.split("\n").map((paragraph, i) =>
                 paragraph.trim() ? (
-                  <p key={i} className="text-gray-300 leading-relaxed mb-4 text-base">
+                  <p key={i} className="text-gray-700 leading-relaxed mb-4 text-base">
                     {paragraph}
                   </p>
                 ) : (
@@ -103,7 +103,7 @@ export default function NewsDetail() {
             </div>
 
             {/* Footer back button */}
-            <div className="mt-12 pt-8 border-t border-white/10">
+            <div className="mt-12 pt-8 border-t border-gray-200">
               <Button
                 variant="outline"
                 className="gap-2"
