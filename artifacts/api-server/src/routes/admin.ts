@@ -7,12 +7,21 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 const router: IRouter = Router();
 
 async function getEffectivePassword(): Promise<string | null> {
-  // DB-stored password takes priority; fall back to env var
+  // ใช้รหัสจาก Environment ก่อน
+  if (process.env.ADMIN_PASSWORD) {
+    return 
+process.env.ADMIN_PASSWORD;
+  }
+
+  // ถ้าไม่มีค่อยลองฐานข้อมูล
   try {
     const [row] = await db.select().from(settingsTable).limit(1);
     if (row?.adminPassword) return row.adminPassword;
-  } catch { /* ignore DB errors, fall back to env */ }
-  return process.env.ADMIN_PASSWORD ?? null;
+  } catch {
+    return null;
+  }
+
+  return null;
 }
 
 router.post("/admin/login", async (req, res): Promise<void> => {
