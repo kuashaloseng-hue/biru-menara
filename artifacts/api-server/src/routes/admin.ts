@@ -35,18 +35,6 @@ router.post("/admin/login", async (req, res): Promise<void> => {
   const s = req.session as unknown as Record<string, unknown>;
   s["isAdmin"] = true;
 
-  // Explicitly save the session before responding so the cookie is committed to
-  // the store before the client makes the next request. Without this, async
-  // handlers can respond before express-session's automatic end-of-response
-  // save completes, causing the immediately-following /admin/me check to find
-  // no session.
-  await new Promise<void>((resolve, reject) => {
-    req.session.save((err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  });
-
   res.json(AdminLoginResponse.parse({ isAdmin: true }));
 });
 
