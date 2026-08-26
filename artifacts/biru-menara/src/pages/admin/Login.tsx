@@ -25,9 +25,10 @@ export default function AdminLogin() {
         toast.success("เข้าสู่ระบบสำเร็จ");
         setLocation("/admin");
       },
-      onError: () => {
-        toast.error("รหัสผ่านไม่ถูกต้อง");
-      }
+      onError: (error) => {
+  console.error("LOGIN ERROR:", error);
+  toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+}
     });
   };
 
